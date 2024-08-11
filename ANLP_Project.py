@@ -19,7 +19,7 @@ def main():
     difficulty_train, train, test = dataset.get_data()  # TODO - currently test is None. Need to decide on split.
 
     M = len(train)  # Number of samples to process
-    M = 30  # TODO - this is for the sake of testing, overriding the line above (which would use the entire dataset)
+    M = 30  # TODO - this is for the sake of testing, overriding the line above (which would use the entire train set)
     num_difficulty_train_samples = 5  # Number of times to run the process for each sample
     k = 3  # Number of difficulty samples for in-context learning, i.e. k-shot
 
