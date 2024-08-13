@@ -24,9 +24,10 @@ class ARC_DATASET:
         train_test_split = arc_dataset['train'].train_test_split(test_size=0.33, seed=42)
         difficulty_train = train_test_split['test']
         train = train_test_split['train']
-        test = None  # TODO - set actual split to three sets
+        validation = arc_dataset['validation']
+        test = arc_dataset['test']# TODO - set actual split to three sets
 
-        return difficulty_train, train, test
+        return difficulty_train, train, validation, test
 
     @staticmethod
     def create_prompt(sample, difficulty_samples):
