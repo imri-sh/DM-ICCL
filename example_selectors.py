@@ -37,6 +37,8 @@ class SimilarityBasedExampleSelector(BaseExampleSelector):
         self.examples.append(example)
 
     def select_examples(self, input_variables, key, kshot):
+        if kshot == 0:
+            return {}
         sample_embedding = self.model.encode([input_variables[key]], convert_to_tensor=True)
         similarities = util.pytorch_cos_sim(sample_embedding, self.pool_embeddings)[0].cpu().numpy()
         top_indices = similarities.argsort()[-kshot:]

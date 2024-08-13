@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from datasets import load_dataset
@@ -94,9 +95,9 @@ def evaluate_model(args, model, tokenizer, validation_set, example_selector):
                                                     kshot=args.kshot)
         few_shot_prompt = create_few_shot_prompt(sample, examples)
         # print(few_shot_prompt)
+        # print(few_shot_prompt)
         inputs = tokenizer(few_shot_prompt, return_tensors='pt')
-        outputs = model.generate(**inputs, max_length=inputs['input_ids'].shape[1] + 1, output_scores=True,
-                                 return_dict_in_generate=True)
+        outputs = model.generate(**inputs, max_length=inputs['input_ids'].shape[1] + 1, return_dict_in_generate=True)
         pred_label = tokenizer.decode(outputs['sequences'][0], skip_special_tokens=True).strip()
         true_label = sample["answerKey"].strip()
 
@@ -111,7 +112,7 @@ def evaluate_model(args, model, tokenizer, validation_set, example_selector):
     return accuracy, all_preds, all_labels
 
 
-def get_filename(args, model_path):
+def get_filename(args, model_path, accuracy):
     filename = f'cm_{args.example_selector_type}_{model_path.split("/")[1]}_{args.dataset_name}_kshot_{args.kshot}_acc_{accuracy:.2f}'.replace(
         '-',
         '_').replace(
@@ -123,6 +124,58 @@ def get_cm_plot_title(args, model_path, accuracy):
     title = f"Model: {model_path} \n Dataset: {args.dataset_name}\n With k-shots={args.kshot} \n Accuracy: {accuracy * 100:.2f}%\n Confusion Matrix"
     return title
 
+
+def experiment_models_on_dataset(args, validation_set, example_selector):
+    accs = []
+    for model_path in args.models:
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+        accuracy, all_preds, all_labels = evaluate_model(args, model, tokenizer, validation_set, example_selector)
+        plot_confusion_matrix(all_labels,
+                              all_preds,
+                              normalize=False,
+                              title=get_cm_plot_title(args, model_path, accuracy),
+                              filename=get_filename(args, model_path, accuracy)
+                              )
+        accs.append(accuracy)
+
+def experiment_acc_over_k(args,  validation_set, examples_pool, max_kshot):
+    accs_rand = []
+    accs_sim = []
+
+    tokenizer = AutoTokenizer.from_pretrained(args.models[0])
+    model = AutoModelForSeq2SeqLM.from_pretrained(args.models[0])
+    random_example_selector = example_selectors.RandomExampleSelector(examples_pool)
+    sim_example_selector = example_selectors.SimilarityBasedExampleSelector(model_name=args.encoder_path,
+                                                                            examples=examples_pool,
+                                                                            key='question')
+
+    for k in tqdm(range(max_kshot), desc="Evaluating model on similarity-based kshot"):
+        args.kshot = k
+        accuracy_sim, _, _ = evaluate_model(args, model, tokenizer, validation_set, sim_example_selector)
+        accs_sim.append(accuracy_sim)
+        print(f"kshot={args.kshot}, accuracy_sim={accuracy_sim * 100:.2f}")
+
+    for k in tqdm(range(max_kshot), desc="Evaluating model on random kshot"):
+        args.kshot = k
+        accuracy_rand, _, _ = evaluate_model(args, model, tokenizer, validation_set, random_example_selector)
+        accs_rand.append(accuracy_rand)
+        print(f"kshot={args.kshot}, accuracy_rand={accuracy_rand * 100:.2f}% ")
+    width= 0.2
+    x =np.arange(max_kshot)
+    plt.bar(x, accs_rand,color='blue', width=width, label="Random Examples",align='center')
+    plt.bar(x+width, accs_sim,color='green', width=width, label="Similarity Based Examples",align='center')
+    plt.legend()
+    plt.xticks([r + width/2 for r in range(len(x))], x)
+    plt.xlabel("Number of Kshots",fontweight='bold')
+    plt.ylabel("Accuracy")
+    plt.title(f"Model: {args.models[0]} \n Dataset: {args.dataset_name}")
+    filename = f"{args.models[0].split('/')[1]}_{args.dataset_name}_acc_over_k.png".replace(
+        '-',
+        '_').replace(
+        '.', '_').lower()
+    plt.savefig(plots_dir / filename)
+    plt.show()
 
 def main():
     # Argument parser for command-line options
@@ -136,25 +189,15 @@ def main():
     dataset = load_dataset(args.dataset_path, args.dataset_name).map(convert_labels)
     examples_pool, validation_set = get_validation_set_and_examples_pool(dataset, args.pool_size, args.test_size)
 
-    # init example selector instance
-    if args.example_selector_type == 'random':
-        example_selector = example_selectors.RandomExampleSelector(examples_pool)
-    elif args.example_selector_type == 'sim':
-        example_selector = example_selectors.SimilarityBasedExampleSelector(model_name=args.encoder_path,
-                                                                            examples=examples_pool,
-                                                                            key='question')
-    accs = []
-    for model_path in args.models:
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
-        model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
-        accuracy, all_preds, all_labels = evaluate_model(args, model, tokenizer, validation_set, example_selector)
-        plot_confusion_matrix(all_labels,
-                              all_preds,
-                              normalize=False,
-                              title=get_cm_plot_title(args, model_path, accuracy),
-                              filename=get_filename(args, model_path)
-                              )
-        accs.append(accuracy)
+    # # init example selector instance
+    # if args.example_selector_type == 'random':
+    #     example_selector = example_selectors.RandomExampleSelector(examples_pool)
+    # elif args.example_selector_type == 'sim':
+    #     example_selector = example_selectors.SimilarityBasedExampleSelector(model_name=args.encoder_path,
+    #                                                                         examples=examples_pool,
+    #                                                                         key='question')
+    # experiment_models_on_dataset(args, validation_set, example_selector)
+    experiment_acc_over_k(args, validation_set, examples_pool, max_kshot=5)
 
 
 if __name__ == '__main__':
