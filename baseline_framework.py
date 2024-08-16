@@ -139,7 +139,8 @@ def experiment_models_on_dataset(args, validation_set, example_selector):
                               )
         accs.append(accuracy)
 
-def experiment_acc_over_k(args,  validation_set, examples_pool, max_kshot):
+
+def experiment_acc_over_k(args, validation_set, examples_pool, max_kshot):
     accs_rand = []
     accs_sim = []
 
@@ -149,25 +150,26 @@ def experiment_acc_over_k(args,  validation_set, examples_pool, max_kshot):
     sim_example_selector = example_selectors.SimilarityBasedExampleSelector(model_name=args.encoder_path,
                                                                             examples=examples_pool,
                                                                             key='question')
-
-    for k in tqdm(range(max_kshot), desc="Evaluating model on similarity-based kshot"):
+    k_range = [25]
+    for k in tqdm(k_range, desc="Evaluating model on similarity-based kshot"):
         args.kshot = k
         accuracy_sim, _, _ = evaluate_model(args, model, tokenizer, validation_set, sim_example_selector)
         accs_sim.append(accuracy_sim)
         print(f"kshot={args.kshot}, accuracy_sim={accuracy_sim * 100:.2f}")
 
-    for k in tqdm(range(max_kshot), desc="Evaluating model on random kshot"):
+    for k in tqdm(k_range, desc="Evaluating model on random kshot"):
         args.kshot = k
         accuracy_rand, _, _ = evaluate_model(args, model, tokenizer, validation_set, random_example_selector)
         accs_rand.append(accuracy_rand)
         print(f"kshot={args.kshot}, accuracy_rand={accuracy_rand * 100:.2f}% ")
-    width= 0.2
-    x =np.arange(max_kshot)
-    plt.bar(x, accs_rand,color='blue', width=width, label="Random Examples",align='center')
-    plt.bar(x+width, accs_sim,color='green', width=width, label="Similarity Based Examples",align='center')
+    width = 0.2
+    # x =np.arange(max_kshot)
+    x = np.array(k_range)
+    plt.bar(x, accs_rand, color='blue', width=width, label="Random Examples", align='center')
+    plt.bar(x + width, accs_sim, color='green', width=width, label="Similarity Based Examples", align='center')
     plt.legend()
-    plt.xticks([r + width/2 for r in range(len(x))], x)
-    plt.xlabel("Number of Kshots",fontweight='bold')
+    plt.xticks([r + width / 2 for r in range(len(x))], x)
+    plt.xlabel("Number of Kshots", fontweight='bold')
     plt.ylabel("Accuracy")
     plt.title(f"Model: {args.models[0]} \n Dataset: {args.dataset_name}")
     filename = f"{args.models[0].split('/')[1]}_{args.dataset_name}_acc_over_k.png".replace(
@@ -176,6 +178,7 @@ def experiment_acc_over_k(args,  validation_set, examples_pool, max_kshot):
         '.', '_').lower()
     plt.savefig(plots_dir / filename)
     plt.show()
+
 
 def main():
     # Argument parser for command-line options
