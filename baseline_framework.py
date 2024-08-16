@@ -150,7 +150,7 @@ def experiment_acc_over_k(args, validation_set, examples_pool, max_kshot):
     sim_example_selector = example_selectors.SimilarityBasedExampleSelector(model_name=args.encoder_path,
                                                                             examples=examples_pool,
                                                                             key='question')
-    k_range = [25]
+    k_range = max_kshot
     for k in tqdm(k_range, desc="Evaluating model on similarity-based kshot"):
         args.kshot = k
         accuracy_sim, _, _ = evaluate_model(args, model, tokenizer, validation_set, sim_example_selector)
@@ -163,8 +163,8 @@ def experiment_acc_over_k(args, validation_set, examples_pool, max_kshot):
         accs_rand.append(accuracy_rand)
         print(f"kshot={args.kshot}, accuracy_rand={accuracy_rand * 100:.2f}% ")
     width = 0.2
-    # x =np.arange(max_kshot)
-    x = np.array(k_range)
+    x =np.arange(max_kshot)
+    # x = np.array(k_range)
     plt.bar(x, accs_rand, color='blue', width=width, label="Random Examples", align='center')
     plt.bar(x + width, accs_sim, color='green', width=width, label="Similarity Based Examples", align='center')
     plt.legend()
