@@ -1,7 +1,29 @@
-from datasets import load_dataset
+from datasets import Dataset, load_dataset
+from abc import ABC, abstractmethod
 
 
-def convert_labels(sample):
+class BaseDataset(ABC):
+    """
+    Interface for a dataset for classes which are responsible for:
+    1. get_data() - Return the data split into disjoint "difficulty_train, train, validation, test"
+    2. create_prompt(sample, difficulty_samples) - Create prompts for models given the question and QA examples.
+    """
+
+    @staticmethod
+    @abstractmethod
+    def get_data() -> tuple[Dataset, Dataset, Dataset, Dataset]:
+        """Returns the dataset split into 4 disjoint parts: difficulty_train, train, validation, test"""
+
+    @staticmethod
+    @abstractmethod
+    def create_prompt(sample, context_examples) -> str:
+        """
+        Given context examples and a sample (a question for the model to answer), creates and returns
+        the prompt to be given to the model.
+        """
+
+
+def labels_to_chars(sample):
     if sample['answerKey'].isdigit():
         # Convert numeric labels to letters
         sample['answerKey'] = chr(64 + int(sample['answerKey']))  # '1' -> 'A', '2' -> 'B', etc.
@@ -11,36 +33,34 @@ def convert_labels(sample):
     return sample
 
 
-class ARC_DATASET:
-    @staticmethod
-    def get_data():
+class ARC_DATASET(BaseDataset):
+    def __init__(self):
         # Load the ARC dataset
         arc_dataset = load_dataset('ai2_arc', 'ARC-Challenge')
 
         # Preprocess the dataset to handle numeric labels
-        arc_dataset = arc_dataset.map(convert_labels)
+        arc_dataset = arc_dataset.map(labels_to_chars)
 
-        # Split the dataset into 33% difficulty-train and 66% train
+        # Split the dataset - the original train is split into train, train_eval. Validation & test used as is.
         train_test_split = arc_dataset['train'].train_test_split(test_size=0.33, seed=42)
-        difficulty_train = train_test_split['test']
-        train = train_test_split['train']
-        validation = arc_dataset['validation']
-        test = arc_dataset['test']# TODO - set actual split to three sets
+        self.train = train_test_split['train']
+        self.train_eval = train_test_split['test']
+        self.validation = arc_dataset['validation']
+        self.test = arc_dataset['test']  # TODO - set actual split to three sets
 
-        return difficulty_train, train, validation, test
+    def get_data(self):
+        return self.train, self.train_eval, self.validation, self.test
 
-    @staticmethod
-    def create_prompt(sample, difficulty_samples):
+    def create_prompt(self, sample, context_examples):
         prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
-        for ds in difficulty_samples:
-            prompt += f"Question: {ds['question']}\n"
-            for i, choice in enumerate(ds['choices']['text']):
+        for example in context_examples:
+            prompt += f"Question: {example['question']}\n"
+            for i, choice in enumerate(example['choices']['text']):
                 prompt += f"{chr(65 + i)}. {choice}\n"
-            prompt += f"Answer: {ds['answerKey']}\n\n"
+            prompt += f"Answer: {example['answerKey']}\n\n"
 
         prompt += f"Question: {sample['question']}\n"
         for i, choice in enumerate(sample['choices']['text']):
             prompt += f"{chr(65 + i)}. {choice}\n"
         prompt += "Answer: "
         return prompt
-

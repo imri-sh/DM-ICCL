@@ -1,5 +1,5 @@
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from dataset_admin import ARC_DATASET
+from dataset_admin import ARC_DATASET, BaseDataset
 import numpy as np
 from tqdm import tqdm
 import torch
@@ -9,20 +9,30 @@ import json
 import matplotlib.pyplot as plt
 
 
-def main():
+def main(num_evals: int, k_shots: int, DATASET=ARC_DATASET):
+    """
+    :param DATASET: The dataset to use - should be an abstract class which implements dataset_admin.BaseDataset.
+    :param num_evals: The number of evaluations to do for each sample
+    :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
+    """
     # Setting model, tokenizer:
-    model_name = "google/flan-t5-base"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model_name = "google/flan-t5-large"
+    tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
-    dataset = ARC_DATASET()  # Change this to switch dataset
-    difficulty_train, train, test = dataset.get_data()  # TODO - currently test is None. Need to decide on split.
+    dataset = DATASET()  # Change this to switch dataset
 
+    train, train_eval, validation, test = dataset.get_data()
+    test = None  # TODO - Currently not touching this.
+    # The following commented out section prints out the lengths of the data:
+    # print("\ntest - ", type(test), "with length", len(test))
+    # print("validation - ", type(validation), "with length", len(validation))
+    # print("train - ", type(train), "with length", len(train))
+    # print("train_eval - ", type(train_eval), "with length", len(train_eval))
 
     M = len(train)  # Number of samples to process
-    M = 1  # TODO - this is for the sake of testing, overriding the line above (which would use the entire train set)
-    num_difficulty_train_samples = 5  # Number of times to run the process for each sample
-    k = 3  # Number of difficulty samples for in-context learning, i.e. k-shot
+    M = 30  # TODO - this is for the sake of testing, overriding the line above (which would use the entire train set)
+    train = validation  # TODO - checking performance on train vs on test
 
     # Store results for each sample
     results = []
@@ -35,8 +45,8 @@ def main():
 
         correct_probs = []
 
-        for _ in range(num_difficulty_train_samples):
-            difficulty_samples = random.sample(list(difficulty_train), k)
+        for _ in range(num_evals):
+            difficulty_samples = random.sample(list(train_eval), k_shots)
             # Create the prompt
             prompt = dataset.create_prompt(sample, difficulty_samples)
             # Tokenize the prompt
@@ -70,14 +80,14 @@ def main():
             correct_probs.append(correct_prob.item())
 
         # Calculate mean and standard deviation of the softmax probabilities
-        mean_prob = np.mean(correct_probs)
-        std_prob = np.std(correct_probs)
+        mean_confidence = np.mean(correct_probs)
+        confidence_std = np.std(correct_probs)
 
         # Save the results
         results.append({
             'sample_index': sample_idx,
-            'mean_prob': mean_prob,
-            'std_prob': std_prob,
+            'mean_confidence': mean_confidence,
+            'confidence_std': confidence_std,
             'correct_probs': correct_probs
         })
 
@@ -92,8 +102,11 @@ def main():
         results = json.load(f)
 
     # Extract mean and std probabilities
-    mean_probs = [result['mean_prob'] for result in results]
-    std_probs = [result['std_prob'] for result in results]
+    mean_probs = [result['mean_confidence'] for result in results]
+    std_probs = [result['confidence_std'] for result in results]
+
+    print(f"Using M={M}, k={k_shots} and num_evals={num_evals}, "
+          f"mean confidence in correct answers is {np.mean(mean_probs)}.")
 
     plot_datamap(std_probs, mean_probs)
 
@@ -111,4 +124,9 @@ def plot_datamap(std_probs, mean_probs):
 
 
 if __name__ == '__main__':
-    main()
+    main(num_evals=2, k_shots=0)
+    main(num_evals=4, k_shots=1)
+    main(num_evals=4, k_shots=2)
+    main(num_evals=4, k_shots=3)
+    main(num_evals=4, k_shots=4)
+    main(num_evals=4, k_shots=5)
