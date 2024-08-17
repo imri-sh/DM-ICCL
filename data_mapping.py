@@ -12,7 +12,8 @@ from model_loader import *
 
 def main(num_evals: int, k_shots: int, model, tokenizer, dataset=ARC_DATASET()):
     """
-    :param model_name: The name of the (huggingface) model to use
+    :param model: Model to use for evaluation
+    :param tokenizer: The model's tokenizer
     :param dataset: The dataset to use - an instance of an abstract class which implements dataset_admin.BaseDataset
     :param num_evals: The number of evaluations to do for each sample
     :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
@@ -20,6 +21,7 @@ def main(num_evals: int, k_shots: int, model, tokenizer, dataset=ARC_DATASET()):
     train, train_eval, validation, test = dataset.get_data()
     test = None  # TODO - Currently not touching this.
     # Printing out the lengths of the data:
+    print("\n")
     print("validation - ", type(validation), "with length", len(validation))
     print("train - ", type(train), "with length", len(train))
     print("train_eval - ", type(train_eval), "with length", len(train_eval))
@@ -116,9 +118,9 @@ def plot_datamap(std_probs, mean_probs):
     plt.show()
 
 
-if __name__ == '__main__':
+def data_mapping():
     # Get model, tokenizer
-    model, tokenizer = get_phi2()  # Change the called function to use a different model (see model_loader.py)
+    model, tokenizer = get_flan_T5_large()  # Change the called function to use a different model (see model_loader.py)
     # Run data mapping:
     main(num_evals=1, k_shots=0, model=model, tokenizer=tokenizer)
     main(num_evals=5, k_shots=1, model=model, tokenizer=tokenizer)
@@ -126,9 +128,7 @@ if __name__ == '__main__':
     main(num_evals=5, k_shots=3, model=model, tokenizer=tokenizer)
     main(num_evals=5, k_shots=4, model=model, tokenizer=tokenizer)
     main(num_evals=5, k_shots=5, model=model, tokenizer=tokenizer)
-    # main(num_evals=5, k_shots=2, model=model, tokenizer=tokenizer)
-    # main(num_evals=5, k_shots=3, model=model, tokenizer=tokenizer)
-    # main(num_evals=1, k_shots=0, model_name="google/flan-t5-large")
-    # main(num_evals=3, k_shots=1, model_name="google/flan-t5-large")
-    # main(num_evals=3, k_shots=2, model_name="google/flan-t5-large")
-    # main(num_evals=3, k_shots=3, model_name="google/flan-t5-large")
+
+
+if __name__ == '__main__':
+    data_mapping()
