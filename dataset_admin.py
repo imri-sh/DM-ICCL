@@ -46,7 +46,7 @@ class ARC_DATASET(BaseDataset):
         self.train = train_test_split['train']
         self.train_eval = train_test_split['test']
         self.validation = arc_dataset['validation']
-        self.test = arc_dataset['test']  # TODO - set actual split to three sets
+        self.test = arc_dataset['test']
 
     def get_data(self):
         return self.train, self.train_eval, self.validation, self.test
