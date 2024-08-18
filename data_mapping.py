@@ -10,14 +10,7 @@ import matplotlib.pyplot as plt
 from model_loader import *
 
 
-def main(num_evals: int, k_shots: int, model, tokenizer, dataset=ARC_DATASET()):
-    """
-    :param model: Model to use for evaluation
-    :param tokenizer: The model's tokenizer
-    :param dataset: The dataset to use - an instance of an abstract class which implements dataset_admin.BaseDataset
-    :param num_evals: The number of evaluations to do for each sample
-    :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
-    """
+def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
     train, train_eval, validation, test = dataset.get_data()
     test = None  # TODO - Currently not touching this.
     # Printing out the lengths of the data:
@@ -85,6 +78,19 @@ def main(num_evals: int, k_shots: int, model, tokenizer, dataset=ARC_DATASET()):
             'confidence_std': confidence_std,
             'correct_probs': correct_probs
         })
+    return results
+
+
+def main(model, tokenizer, num_evals: int, k_shots: int, dataset=ARC_DATASET()):
+    """
+    :param model: Model to use for evaluation
+    :param tokenizer: The model's tokenizer
+    :param dataset: The dataset to use - an instance of an abstract class which implements dataset_admin.BaseDataset
+    :param num_evals: The number of evaluations to do for each sample
+    :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
+    """
+    # Store results for each sample
+    results = get_confidence_std(dataset, model, tokenizer, num_evals, k_shots)
 
     # Save results to a file
     with open('results.json', 'w') as f:
@@ -155,12 +161,12 @@ def data_mapping():
     # Get model, tokenizer
     model, tokenizer = get_flan_T5_xl()  # Change the called function to use a different model (see model_loader.py)
     # Run data mapping:
-    main(num_evals=1, k_shots=0, model=model, tokenizer=tokenizer)
-    main(num_evals=5, k_shots=1, model=model, tokenizer=tokenizer)
-    main(num_evals=5, k_shots=2, model=model, tokenizer=tokenizer)
-    main(num_evals=5, k_shots=3, model=model, tokenizer=tokenizer)
-    main(num_evals=5, k_shots=4, model=model, tokenizer=tokenizer)
-    main(num_evals=5, k_shots=5, model=model, tokenizer=tokenizer)
+    main(model=model, tokenizer=tokenizer, num_evals=1, k_shots=0)
+    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=1)
+    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=2)
+    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=3)
+    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=4)
+    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=5)
 
 
 if __name__ == '__main__':
