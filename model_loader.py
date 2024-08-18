@@ -13,7 +13,7 @@ def get_phi3():
     """ google's phi-3. 3.8B params."""
     model_name = "microsoft/Phi-3-mini-4k-instruct"
     model = AutoModelForCausalLM.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
     return model, tokenizer
 
 
