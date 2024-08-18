@@ -10,17 +10,26 @@ import matplotlib.pyplot as plt
 from model_loader import *
 
 
-def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
+def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
+    """
+    # TODO - Document.
+    :param dataset:
+    :param model:
+    :param tokenizer:
+    :param M:
+    :param num_evals:
+    :param k_shots:
+    :return:
+    """
     train, train_eval, validation, test = dataset.get_data()
     test = None  # TODO - Currently not touching this.
+    if M is None:
+        M = len(train)
     # Printing out the lengths of the data:
     print("\n")
     print("validation - ", type(validation), "with length", len(validation))
     print("train - ", type(train), "with length", len(train))
     print("train_eval - ", type(train_eval), "with length", len(train_eval))
-
-    M = len(train)  # Number of samples to process
-    M = 20  # TODO - this is for the sake of testing, overriding the line above (which would use the entire train set)
 
     # Store results for each sample
     results = []
@@ -78,6 +87,17 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
             'confidence_std': confidence_std,
             'correct_probs': correct_probs
         })
+
+    # Save results to a file
+    with open('results.json', 'w') as f:
+        json.dump(results, f, indent=4)
+
+    print(f"Results saved to 'results.json'")
+
+    # Load the results from the file
+    with open('results.json', 'r') as f:
+        results = json.load(f)
+
     return results
 
 
@@ -89,18 +109,9 @@ def main(model, tokenizer, num_evals: int, k_shots: int, dataset=ARC_DATASET()):
     :param num_evals: The number of evaluations to do for each sample
     :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
     """
-    # Store results for each sample
-    results = get_confidence_std(dataset, model, tokenizer, num_evals, k_shots)
-
-    # Save results to a file
-    with open('results.json', 'w') as f:
-        json.dump(results, f, indent=4)
-
-    print(f"Results saved to 'results.json'")
-
-    # Load the results from the file
-    with open('results.json', 'r') as f:
-        results = json.load(f)
+    # Get results for each sample
+    M = 20  # TODO - this is for the sake of testing. If None, defaults to using entire training set
+    results = get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=M)
 
     # Extract mean and std probabilities
     mean_probs = [result['mean_confidence'] for result in results]
