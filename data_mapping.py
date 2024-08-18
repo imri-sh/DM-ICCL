@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForCausalLM
+from example_selectors import RandomExampleSelector
 from dataset_admin import ARC_DATASET
 import numpy as np
 from tqdm import tqdm
@@ -106,6 +106,39 @@ def main(num_evals: int, k_shots: int, model, tokenizer, dataset=ARC_DATASET()):
     plot_datamap(std_probs, mean_probs)
 
 
+def assign_difficulty(examples: list[dict]):
+    """
+        :param examples: A list of dictionaries, where each dictionary represents an example and includes the
+                mean confidence and standard deviation of the example according to some model.
+    Splits the given examples to difficulty levels, according to the given model's confidence and it's std.
+    Also adds the difficulty level to the "example" dictionary.
+    """
+    easy = []
+    ambiguous = []
+    hard = []
+
+    for example in examples:
+        confidence = example['mean_confidence']
+        std = example['confidence_std']
+        if confidence >= 0.5:
+            x = confidence - 2 * std
+            if x >= 0.5:
+                example['difficulty_level'] = 'easy'
+                easy.append(example)
+            if x < 0.5:
+                example['difficulty_level'] = 'ambiguous'
+                ambiguous.append(example)
+        if confidence < 0.5:
+            x = confidence + 2 * std
+            if x >= 0.5:
+                example['difficulty_level'] = 'ambiguous'
+                ambiguous.append(example)
+            if x < 0.5:
+                example['difficulty_level'] = 'hard'
+                hard.append(example)
+    return easy, ambiguous, hard
+
+
 def plot_datamap(std_probs, mean_probs):
     # Plot the results
     plt.figure(figsize=(10, 6))
@@ -120,7 +153,7 @@ def plot_datamap(std_probs, mean_probs):
 
 def data_mapping():
     # Get model, tokenizer
-    model, tokenizer = get_flan_T5_large()  # Change the called function to use a different model (see model_loader.py)
+    model, tokenizer = get_flan_T5_xl()  # Change the called function to use a different model (see model_loader.py)
     # Run data mapping:
     main(num_evals=1, k_shots=0, model=model, tokenizer=tokenizer)
     main(num_evals=5, k_shots=1, model=model, tokenizer=tokenizer)
