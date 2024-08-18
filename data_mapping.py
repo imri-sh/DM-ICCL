@@ -23,6 +23,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
     """
     train, train_eval, validation, test = dataset.get_data()
     test = None  # TODO - Currently not touching this.
+
     if M is None:
         M = len(train)
     # Printing out the lengths of the data:
@@ -43,7 +44,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
         correct_probs = []
 
         for _ in range(num_evals):
-            difficulty_samples = random.sample(list(train_eval), k_shots)  # TODO - change to example selector
+            difficulty_samples = random.sample(list(train_eval), k_shots)  # TODO - change to example selector?
             # Create the prompt
             prompt = dataset.create_prompt(sample, difficulty_samples)
             # Tokenize the prompt
@@ -101,7 +102,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
     return results
 
 
-def main(model, tokenizer, num_evals: int, k_shots: int, dataset=ARC_DATASET()):
+def main(model, tokenizer, num_evals: int, k_shots: int, dataset):
     """
     :param model: Model to use for evaluation
     :param tokenizer: The model's tokenizer
@@ -120,10 +121,24 @@ def main(model, tokenizer, num_evals: int, k_shots: int, dataset=ARC_DATASET()):
     print(f"Using M={M}, k={k_shots} and num_evals={num_evals}, "
           f"mean confidence in correct answers is {np.mean(mean_probs)}.")
 
+    easy, ambiguous, hard = assign_difficulty(results)  # Also adds difficulty categories to each example
+
     plot_datamap(std_probs, mean_probs)
 
 
-def assign_difficulty(examples: list[dict]):
+def plot_data_map_by_difficulty(easy, ambiguous, hard):
+    """
+    Creates a datamap for the given samples in "easy, ambiguous, hard".
+    :return:
+    """
+    # TODO - implement. Plot such that each difficulty level has different symbols.
+    #  Optional - draw the decision boundaries, but that's specific to the assignment strategy. We can create an
+    #  interface and then classes for each these strategies, and use them as strategy.assign_difficulty(), and here for
+    #  the decision boundries.
+    raise NotImplementedError
+
+
+def assign_difficulty(examples: list[dict]) -> tuple[list, list, list]:
     """
         :param examples: A list of dictionaries, where each dictionary represents an example and includes the
                 mean confidence and standard deviation of the example according to some model.
@@ -170,14 +185,15 @@ def plot_datamap(std_probs, mean_probs):
 
 def data_mapping():
     # Get model, tokenizer
-    model, tokenizer = get_flan_T5_xl()  # Change the called function to use a different model (see model_loader.py)
+    model, tokenizer = get_phi3()  # Change the called function to use a different model (see model_loader.py)
+    dataset = ARC_DATASET()  # Change the called function to use a different dataset (see dataset_admin.py)
     # Run data mapping:
-    main(model=model, tokenizer=tokenizer, num_evals=1, k_shots=0)
-    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=1)
-    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=2)
-    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=3)
-    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=4)
-    main(model=model, tokenizer=tokenizer, num_evals=5, k_shots=5)
+    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
+    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=1)
+    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=2)
+    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=3)
+    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=4)
+    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=5)
 
 
 if __name__ == '__main__':
