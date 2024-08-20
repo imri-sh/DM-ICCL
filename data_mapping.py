@@ -9,6 +9,7 @@ import json
 import matplotlib.pyplot as plt
 from model_loader import *
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
     """
@@ -48,7 +49,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
             # Create the prompt
             prompt = dataset.create_prompt(sample, difficulty_samples)
             # Tokenize the prompt
-            inputs = tokenizer(prompt, return_tensors='pt')
+            inputs = tokenizer(prompt, return_tensors='pt').to(device)
             # Generate the logits
             outputs = model.generate(**inputs, max_length=inputs['input_ids'].shape[1] + 1, output_scores=True,
                                      return_dict_in_generate=True, pad_token_id=tokenizer.eos_token_id)
@@ -111,9 +112,8 @@ def main(model, tokenizer, num_evals: int, k_shots: int, dataset):
     :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
     """
     # Get results for each sample
-    M = 20  # TODO - this is for the sake of testing. If None, defaults to using entire training set
+    M = 8  # TODO - this is for the sake of testing. If M=None, defaults to using entire training set
     results = get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=M)
-
     # Extract mean and std probabilities
     mean_probs = [result['mean_confidence'] for result in results]
     std_probs = [result['confidence_std'] for result in results]
@@ -122,20 +122,51 @@ def main(model, tokenizer, num_evals: int, k_shots: int, dataset):
           f"mean confidence in correct answers is {np.mean(mean_probs)}.")
 
     easy, ambiguous, hard = assign_difficulty(results)  # Also adds difficulty categories to each example
+    plot_data_map_by_difficulty(easy, ambiguous, hard)
 
-    plot_datamap(std_probs, mean_probs)
+    return results
 
 
 def plot_data_map_by_difficulty(easy, ambiguous, hard):
-    """
-    Creates a datamap for the given samples in "easy, ambiguous, hard".
-    :return:
-    """
-    # TODO - implement. Plot such that each difficulty level has different symbols.
-    #  Optional - draw the decision boundaries, but that's specific to the assignment strategy. We can create an
-    #  interface and then classes for each these strategies, and use them as strategy.assign_difficulty(), and here for
-    #  the decision boundries.
-    raise NotImplementedError
+    # Extract x and y values for each category
+    easy_x = [example['confidence_std'] for example in easy]
+    easy_y = [example['mean_confidence'] for example in easy]
+
+    ambiguous_x = [example['confidence_std'] for example in ambiguous]
+    ambiguous_y = [example['mean_confidence'] for example in ambiguous]
+
+    hard_x = [example['confidence_std'] for example in hard]
+    hard_y = [example['mean_confidence'] for example in hard]
+
+    # Create the scatter plot
+    plt.figure(figsize=(10, 6))
+
+    plt.scatter(easy_x, easy_y, color='green', label='Easy', alpha=0.6, edgecolors='w', s=100)
+    plt.scatter(ambiguous_x, ambiguous_y, color='orange', label='Ambiguous', alpha=0.6, edgecolors='w', s=100)
+    plt.scatter(hard_x, hard_y, color='red', label='Hard', alpha=0.6, edgecolors='w', s=100)
+
+    # Plot decision boundary lines
+    std_range = np.linspace(0, max(easy_x + ambiguous_x + hard_x), 100)
+
+    # For easy and ambiguous boundary: confidence - 2 * std = 0.5 -> confidence = 0.5 + 2 * std
+    easy_boundary_y = 0.5 + 2 * std_range
+    plt.plot(std_range, easy_boundary_y, 'b--', label='Easy-Ambiguous Boundary')
+
+    # For ambiguous and hard boundary: confidence + 2 * std = 0.5 -> confidence = 0.5 - 2 * std
+    hard_boundary_y = 0.5 - 2 * std_range
+    plt.plot(std_range, hard_boundary_y, 'r--', label='Ambiguous-Hard Boundary')
+
+    # Set plot title and labels
+    plt.title('Data Map by Difficulty with Decision Boundaries')
+    plt.xlabel('Confidence Standard Deviation')
+    plt.ylabel('Mean Confidence')
+
+    # Add a legend
+    plt.legend()
+
+    # Show plot
+    plt.grid(True)
+    plt.show()
 
 
 def assign_difficulty(examples: list[dict]) -> tuple[list, list, list]:
@@ -185,15 +216,15 @@ def plot_datamap(std_probs, mean_probs):
 
 def data_mapping():
     # Get model, tokenizer
-    model, tokenizer = get_phi3()  # Change the called function to use a different model (see model_loader.py)
+    model, tokenizer = get_phi3_5()  # Change the called function to use a different model (see model_loader.py)
     dataset = ARC_DATASET()  # Change the called function to use a different dataset (see dataset_admin.py)
     # Run data mapping:
-    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
-    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=1)
+    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
+    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=1)
     main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=2)
-    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=3)
-    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=4)
-    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=5)
+    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=3)
+    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=4)
+    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=5)
 
 
 if __name__ == '__main__':
