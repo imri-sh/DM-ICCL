@@ -2,7 +2,6 @@ from example_selectors import RandomExampleSelector
 from dataset_admin import ARC_DATASET
 import numpy as np
 from tqdm import tqdm
-import torch
 import random
 import torch.nn.functional as F
 import json
@@ -68,7 +67,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
             # Convert logits to a tensor
             logits_tensor = torch.tensor([answer_logits[chr(65 + i)] for i in range(num_choices)])
 
-            # Calculate softmax probabilities
+            # Calculate softmax probabilities #TODO - ADD ACCURACY!
             softmax_probs = F.softmax(logits_tensor, dim=0)
 
             # Ensure correct_index is within bounds
@@ -115,6 +114,7 @@ def data_mapping(model, tokenizer, model_name: str, num_evals: int, k_shots: int
     evaluation results.
     :param model: Model to use for evaluation
     :param tokenizer: The model's tokenizer
+    :param model_name:  The model's name (String)
     :param dataset: The dataset to use - an instance of an abstract class which implements dataset_admin.BaseDataset
     :param num_evals: The number of evaluations to do for each sample
     :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
@@ -233,7 +233,7 @@ def main():
     dataset = ARC_DATASET()  # Change the called function to use a different dataset (see dataset_admin.py)
     # Run data mapping:
     # results_k_0 = main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
-    for k in range(0, 3):
+    for k in range(0, 5):
         num_evals = 5 if k != 0 else 1
         results = data_mapping(model=model, tokenizer=tokenizer, model_name=model_name, dataset=dataset,
                                num_evals=num_evals, k_shots=k)
