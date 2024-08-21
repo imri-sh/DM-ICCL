@@ -11,6 +11,7 @@ from model_loader import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
     """
     # TODO - Document.
@@ -23,6 +24,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
     :return:
     """
     train, train_eval, validation, test = dataset.get_data()
+    train = validation  # TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO
     test = None  # TODO - Currently not touching this.
 
     if M is None:
@@ -90,21 +92,27 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
             'correct_probs': correct_probs
         })
 
-    # Save results to a file
-    with open('results.json', 'w') as f:
-        json.dump(results, f, indent=4)
-
-    print(f"Results saved to 'results.json'")
-
-    # Load the results from the file
-    with open('results.json', 'r') as f:
-        results = json.load(f)
-
     return results
 
 
-def main(model, tokenizer, num_evals: int, k_shots: int, dataset):
+def save_results(results, save_path: str = 'results.json'):
+    """ Save the results to file."""
+
+    with open(save_path, 'w') as f:
+        json.dump(results, f, indent=4)
+
+
+def load_results(load_path: str = 'results.json'):
+    """ Loads the results and returns them."""
+    with open(load_path, 'r') as f:
+        results = json.load(f)
+    return results
+
+
+def data_mapping(model, tokenizer, model_name: str, num_evals: int, k_shots: int, dataset):
     """
+    Evaluates how hard individual samples in the dataset are for the given model. Creates a datamap and returns the
+    evaluation results.
     :param model: Model to use for evaluation
     :param tokenizer: The model's tokenizer
     :param dataset: The dataset to use - an instance of an abstract class which implements dataset_admin.BaseDataset
@@ -112,7 +120,7 @@ def main(model, tokenizer, num_evals: int, k_shots: int, dataset):
     :param k_shots: The number of examples to use as context. Note that the context length of the model limits this.
     """
     # Get results for each sample
-    M = 8  # TODO - this is for the sake of testing. If M=None, defaults to using entire training set
+    M = None  # TODO - this is for the sake of testing. If M=None, defaults to using entire training set
     results = get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=M)
     # Extract mean and std probabilities
     mean_probs = [result['mean_confidence'] for result in results]
@@ -122,12 +130,14 @@ def main(model, tokenizer, num_evals: int, k_shots: int, dataset):
           f"mean confidence in correct answers is {np.mean(mean_probs)}.")
 
     easy, ambiguous, hard = assign_difficulty(results)  # Also adds difficulty categories to each example
-    plot_data_map_by_difficulty(easy, ambiguous, hard)
+    plot_path = f"./datamap {model_name}, {dataset.get_name()}. k={k_shots}, num_evals={num_evals}.png"
+    plot_title = f"{model_name}, {dataset.get_name()} Data Map"
+    plot_data_map_by_difficulty(easy, ambiguous, hard, title=plot_title, save_path=plot_path)
 
     return results
 
 
-def plot_data_map_by_difficulty(easy, ambiguous, hard):
+def plot_data_map_by_difficulty(easy, ambiguous, hard, title: str, save_path: str = None):
     # Extract x and y values for each category
     easy_x = [example['confidence_std'] for example in easy]
     easy_y = [example['mean_confidence'] for example in easy]
@@ -157,14 +167,16 @@ def plot_data_map_by_difficulty(easy, ambiguous, hard):
     plt.plot(std_range, hard_boundary_y, 'r--', label='Ambiguous-Hard Boundary')
 
     # Set plot title and labels
-    plt.title('Data Map by Difficulty with Decision Boundaries')
+    plt.title(title)
     plt.xlabel('Confidence Standard Deviation')
     plt.ylabel('Mean Confidence')
 
     # Add a legend
     plt.legend()
 
-    # Show plot
+    # Show/save plot
+    if save_path:
+        plt.savefig(save_path)
     plt.grid(True)
     plt.show()
 
@@ -214,18 +226,19 @@ def plot_datamap(std_probs, mean_probs):
     plt.show()
 
 
-def data_mapping():
-    # Get model, tokenizer
-    model, tokenizer = get_phi3_5()  # Change the called function to use a different model (see model_loader.py)
+def main():
+    set_dtype_fp16()  # Changes the loaded pretrained models to fp16 (8, 16, and 32 available. Default is 32).
+    # Get model, tokenizer:
+    model, tokenizer, model_name = get_phi3_5()  # Change to use a different model (see model_loader.py)
     dataset = ARC_DATASET()  # Change the called function to use a different dataset (see dataset_admin.py)
     # Run data mapping:
-    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
-    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=1)
-    main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=2)
-    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=3)
-    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=4)
-    # main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=5, k_shots=5)
+    # results_k_0 = main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
+    for k in range(0, 3):
+        num_evals = 5 if k != 0 else 1
+        results = data_mapping(model=model, tokenizer=tokenizer, model_name=model_name, dataset=dataset,
+                               num_evals=num_evals, k_shots=k)
+        save_results(results, save_path=f"results for model {model_name} with k={k}, num_evals={num_evals}")
 
 
 if __name__ == '__main__':
-    data_mapping()
+    main()
