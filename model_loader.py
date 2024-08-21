@@ -7,16 +7,19 @@ dtype = torch.float32  # The default, "full", dtype
 
 def set_dtype_fp8():
     """Sets the default floating point of the models to 8 bytes (1/4th the "full" size)"""
+    global dtype
     dtype = torch.float8
 
 
 def set_dtype_fp16():
     """Sets the default floating point of the models to 16 bytes (half the "full" size)"""
+    global dtype
     dtype = torch.float16
 
 
 def set_dtype_fp32():
     """Sets the default floating point of the models to 32 bytes (the "full" size)"""
+    global dtype
     dtype = torch.float16
 
 
