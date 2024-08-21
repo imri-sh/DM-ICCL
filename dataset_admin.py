@@ -9,9 +9,8 @@ class BaseDataset(ABC):
     2. create_prompt(sample, difficulty_samples) - Create prompts for models given the question and QA examples.
     """
 
-    @staticmethod
     @abstractmethod
-    def get_data() -> tuple[Dataset, Dataset, Dataset, Dataset]:
+    def get_data(self) -> tuple[Dataset, Dataset, Dataset, Dataset]:
         """Returns the dataset split into 4 disjoint parts: difficulty_train, train, validation, test"""
 
     @staticmethod
@@ -21,6 +20,11 @@ class BaseDataset(ABC):
         Given context examples and a sample (a question for the model to answer), creates and returns
         the prompt to be given to the model.
         """
+
+    @staticmethod
+    @abstractmethod
+    def get_name() -> str:
+        """Returns the name of the dataset."""
 
 
 def labels_to_chars(sample):
@@ -64,3 +68,6 @@ class ARC_DATASET(BaseDataset):
             prompt += f"{chr(65 + i)}. {choice}\n"
         prompt += "Answer: "
         return prompt
+
+    def get_name(self):
+        return "ARC-challenge dataset"
