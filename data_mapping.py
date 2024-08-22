@@ -146,15 +146,18 @@ def data_mapping(model, tokenizer, model_name: str, num_evals: int, k_shots: int
     mean_probs = [result['mean_confidence'] for result in results]
     std_probs = [result['confidence_std'] for result in results]
 
-    print(f"Using M={M}, k={k_shots} and num_evals={num_evals}, "
-          f"mean confidence in correct answers is {np.mean(mean_probs)}.")
+    mean_confidence = np.mean(mean_probs)
+    print(
+        f"Using M={M}, k={k_shots} and num_evals={num_evals}, "
+        f"mean confidence in correct answers is {mean_confidence}."
+    )
 
     easy, ambiguous, hard = assign_difficulty(results)  # Also adds difficulty categories to each example
     plot_path = f"./datamap {model_name}, {dataset.get_name()}. k={k_shots}, num_evals={num_evals}.png"
     plot_title = f"{model_name}, {dataset.get_name()} Data Map"
     plot_data_map_by_difficulty(easy, ambiguous, hard, title=plot_title, save_path=plot_path)
 
-    return results
+    return results, mean_confidence
 
 
 def plot_data_map_by_difficulty(easy, ambiguous, hard, title: str, save_path: str = None):
@@ -250,16 +253,27 @@ def main():
     set_dtype_fp16()  # Changes the loaded pretrained models to fp16 (8, 16, and 32 available. Default is 32).
     # Get model, tokenizer:
     model, tokenizer, model_name = (
-        get_llama_3_8b_instruct()
+        get_gemma_2_9b_instruct()
     )  # Change to use a different model (see model_loader.py)
     dataset = ARC_DATASET()  # Change the called function to use a different dataset (see dataset_admin.py)
     # Run data mapping:
     # results_k_0 = main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
+    mean_confidences = []
     for k in range(0, 5):
         num_evals = 5 if k != 0 else 1
-        results = data_mapping(model=model, tokenizer=tokenizer, model_name=model_name, dataset=dataset,
-                               num_evals=num_evals, k_shots=k)
+        results, mean_confidence = data_mapping(
+            model=model,
+            tokenizer=tokenizer,
+            model_name=model_name,
+            dataset=dataset,
+            num_evals=num_evals,
+            k_shots=k,
+        )
         save_results(results, save_path=f"results for model {model_name} with k={k}, num_evals={num_evals}")
+        mean_confidences.append(mean_confidence)
+
+    for k in range(0, 5):
+        print(f"k={k}, mean confidence={mean_confidences[k]}")
 
 
 if __name__ == '__main__':

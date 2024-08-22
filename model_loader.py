@@ -81,3 +81,13 @@ def get_llama_3_8b_instruct():
     )
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     return model, tokenizer, "llama-3-8B-instruct"
+
+
+def get_gemma_2_9b_instruct():
+    """Google's Gemma 2 9B instruct. 9B params."""
+    model_name = "google/gemma-2-9b-it"
+    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
+        device
+    )
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    return model, tokenizer, "gemma-2-9B-instruct"
