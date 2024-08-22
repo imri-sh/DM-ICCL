@@ -71,3 +71,69 @@ class ARC_DATASET(BaseDataset):
 
     def get_name(self):
         return "ARC-challenge dataset"
+
+
+EMOTION_LABELS = ["sadness", "joy", "love", "anger", "fear", "surprise"]
+LABELS = ["A", "B", "C", "D", "E", "F"]
+CHOICES = {"text": EMOTION_LABELS, "label": LABELS}
+
+
+def emotion_convert_to_multiple_choice(sample):
+    # Convert numeric labels to letters
+    sample["answerKey"] = chr(65 + int(sample["label"]))  # '0' -> 'A', '1' -> 'B', etc.
+    sample["question"] = sample["text"]
+    sample["choices"] = CHOICES
+    return sample
+
+
+class Emotion_Dataset(BaseDataset):
+
+    def __init__(self, percentage_of_data_to_use=None):
+        # Load the ARC dataset
+        emotion_dataset = load_dataset("emotion", "split")
+
+        # Preprocess the dataset to handle numeric labels
+        emotion_dataset = emotion_dataset.map(emotion_convert_to_multiple_choice)
+
+        # Split the dataset - the original train is split into train, train_eval. Validation & test used as is.
+        train_test_split = emotion_dataset["train"].train_test_split(
+            test_size=0.33, seed=42
+        )
+        self.train = train_test_split["train"]
+        self.train_eval = train_test_split["test"]
+        self.validation = emotion_dataset["validation"]
+        self.test = emotion_dataset["test"]
+
+        if percentage_of_data_to_use is not None:
+            self.train = self.train.select(
+                range(int(len(self.train) * percentage_of_data_to_use))
+            )
+            self.train_eval = self.train_eval.select(
+                range(int(len(self.train_eval) * percentage_of_data_to_use))
+            )
+            self.validation = self.validation.select(
+                range(int(len(self.validation) * percentage_of_data_to_use))
+            )
+            self.test = self.test.select(
+                range(int(len(self.test) * percentage_of_data_to_use))
+            )
+
+    def get_data(self):
+        return self.train, self.train_eval, self.validation, self.test
+
+    def create_prompt(self, sample, context_examples):
+        prompt = "Choose the emotion that best fits the following statements, using the letter of the correct answer.\n\n"
+        for example in context_examples:
+            prompt += f"Statement: {example['question']}\n"
+            for i, choice in enumerate(example["choices"]["text"]):
+                prompt += f"{chr(65 + i)}. {choice}\n"
+            prompt += f"Answer: {example['answerKey']}\n\n"
+
+        prompt += f"Statement: {sample['question']}\n"
+        for i, choice in enumerate(sample["choices"]["text"]):
+            prompt += f"{chr(65 + i)}. {choice}\n"
+        prompt += "Answer: "
+        return prompt
+
+    def get_name(self):
+        return "Emotion dataset"

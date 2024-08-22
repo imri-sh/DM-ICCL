@@ -1,5 +1,5 @@
 from example_selectors import RandomExampleSelector
-from dataset_admin import ARC_DATASET
+from dataset_admin import ARC_DATASET, Emotion_Dataset
 import numpy as np
 from tqdm import tqdm
 import random
@@ -253,9 +253,12 @@ def main():
     set_dtype_fp16()  # Changes the loaded pretrained models to fp16 (8, 16, and 32 available. Default is 32).
     # Get model, tokenizer:
     model, tokenizer, model_name = (
-        get_gemma_2_9b_instruct()
+        get_llama_3_8b_instruct()
     )  # Change to use a different model (see model_loader.py)
-    dataset = ARC_DATASET()  # Change the called function to use a different dataset (see dataset_admin.py)
+    dataset = Emotion_Dataset(
+        percentage_of_data_to_use=0.1
+    )  # Change the called function to use a different dataset (see dataset_admin.py)
+
     # Run data mapping:
     # results_k_0 = main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
     mean_confidences = []
