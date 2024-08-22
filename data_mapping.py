@@ -42,7 +42,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
         sample = train[sample_idx]
         correct_answer = sample['answerKey']
         correct_index = ord(correct_answer) - 65  # Convert 'A' to 0, 'B' to 1, etc.
-
+        is_llama = type(model).__name__ == "LlamaForCausalLM"
         correct_probs = []
 
         for _ in range(num_evals):
@@ -52,15 +52,22 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
             # Tokenize the prompt
             inputs = tokenizer(prompt, return_tensors='pt').to(device)
             # Generate the logits
-            outputs = model.generate(**inputs, max_length=inputs['input_ids'].shape[1] + 1, output_scores=True,
-                                     return_dict_in_generate=True, pad_token_id=tokenizer.eos_token_id)
-
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=1,
+                output_scores=True,
+                return_dict_in_generate=True,
+                pad_token_id=tokenizer.eos_token_id,
+                temperature=(1.5 if is_llama else 1.0),
+            )
             # Extract the logits for each answer choice
             answer_logits = {}
             num_choices = len(sample['choices']['text'])
             for i in range(num_choices):
                 letter = chr(65 + i)  # Convert index to letter (0 -> 'A', 1 -> 'B', etc.)
-                token_id = tokenizer.convert_tokens_to_ids(letter)
+                # Llama uses 'Ġ' before each token, so we need to add it here
+                token_to_tokenize = f"Ġ{letter}" if is_llama else letter
+                token_id = tokenizer.convert_tokens_to_ids(token_to_tokenize)
                 # Extract the logits for the token corresponding to the letter
                 answer_logits[letter] = outputs.scores[0][0, token_id].item()
 
@@ -69,7 +76,11 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
 
             # Calculate softmax probabilities #TODO - ADD ACCURACY!
             softmax_probs = F.softmax(logits_tensor, dim=0)
-
+            if torch.all(torch.isnan(softmax_probs)).item():
+                print(
+                    f"Error: Softmax probabilities are all NaN for sample {sample_idx}"
+                )
+                continue
             # Ensure correct_index is within bounds
             if correct_index >= num_choices or correct_index < 0:
                 print(f"Error: Correct index {correct_index} is out of bounds for num choices {num_choices}")
@@ -77,9 +88,18 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
 
             # Get the probability of the correct answer and store it
             correct_prob = softmax_probs[correct_index]
+            if correct_prob.isnan().item():
+                print(
+                    f"Debug: Correct prob is NaN for sample {sample_idx}, while other probs are {softmax_probs}"
+                )
+                correct_prob = torch.tensor(0.0)
             correct_probs.append(correct_prob.item())
 
         # Calculate mean and standard deviation of the softmax probabilities
+        if correct_probs == []:
+            print(f"Error: No correct probabilities for sample {sample_idx}")
+            continue
+
         mean_confidence = np.mean(correct_probs)
         confidence_std = np.std(correct_probs)
 
@@ -229,7 +249,9 @@ def plot_datamap(std_probs, mean_probs):
 def main():
     set_dtype_fp16()  # Changes the loaded pretrained models to fp16 (8, 16, and 32 available. Default is 32).
     # Get model, tokenizer:
-    model, tokenizer, model_name = get_phi3_5()  # Change to use a different model (see model_loader.py)
+    model, tokenizer, model_name = (
+        get_llama_3_8b_instruct()
+    )  # Change to use a different model (see model_loader.py)
     dataset = ARC_DATASET()  # Change the called function to use a different dataset (see dataset_admin.py)
     # Run data mapping:
     # results_k_0 = main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)

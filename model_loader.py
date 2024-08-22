@@ -71,3 +71,13 @@ def get_flan_T5_xl():
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
     return model, tokenizer, "flan-t5-xl"
+
+
+def get_llama_3_8b_instruct():
+    """Meta's Llama 3 8B instruct. 8B params."""
+    model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
+        device
+    )
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    return model, tokenizer, "llama-3-8B-instruct"
