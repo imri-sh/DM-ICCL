@@ -3,6 +3,9 @@ import random
 from typing import Dict, List, Any
 from sentence_transformers import SentenceTransformer, util
 
+import utils
+from data_mapping import data_mapping, assign_difficulty
+from pathlib import Path
 
 class BaseExampleSelector(ABC):
     """Interface for selecting examples to include in prompts."""
@@ -48,3 +51,67 @@ class SimilarityBasedExampleSelector(BaseExampleSelector):
     def compute_embeddings(self, model, examples, key):
         embeddings = model.encode([example[key] for example in examples], convert_to_tensor=True)
         return embeddings
+
+
+class DatamapExampleSelector(BaseExampleSelector):
+    def __init__(self, model, tokenizer, model_name, dataset, num_evals,k_shots, save_path:Path=None):
+        self.dataset = dataset
+        print(f"Initializing DatamapExampleSelector with the following configuration:\n"
+              f"\t Model Name: {model_name}\n"
+              f"\t Dataset Name: {dataset.get_name()}\n"
+              f"\t Number of Evaluations per example: {num_evals}\n"
+              f"\t trained with k_shots: {k_shots}")
+
+        if save_path is not None and save_path.exists():
+            print(f"The datamap already exists! Loading from {save_path}")
+            self.datamapping_results = utils.load_results(save_path)
+            print(f"{save_path} loaded successfully.")
+        else:
+
+            print("The datamap does not exist. Creating a new one based on the configuration above.")
+            self.datamapping_results, _ = data_mapping(
+                model=model,
+                tokenizer=tokenizer,
+                dataset=dataset,
+                num_evals=num_evals,
+                k_shots=k_shots,
+                title=f"{model_name}, {dataset.get_name()} Data Map",
+                plot_path= utils.plots_dir / f"{model_name}_{dataset.get_name()}_k_{k_shots}_num_evals_{num_evals}.png",
+                show_plot=True
+            )
+            if save_path:
+                save_path.mkdir(parents=True, exist_ok=True)
+                utils.save_results(
+                    self.datamapping_results,
+                    save_path=save_path,
+                )
+        self.easy, self.ambiguous, self.hard = assign_difficulty(self.datamapping_results)
+        print(f"Datamap is ready to use. divided to easy, ambiguous and hard pool examples for ICL.\n"
+              f"\tEasy examples pool size: {len(self.easy)}\n"
+              f"\tAmbiguous examples pool size: {len(self.ambiguous)}\n"
+              f"\tHard pool examples pool size: {len(self.hard)}")
+
+    def add_example(self, example, difficulty='easy'):
+        if difficulty == 'easy':
+            self.easy.append(example)
+        if difficulty == 'ambiguous':
+            self.ambiguous.append(example)
+        if difficulty == 'hard':
+            self.hard.append(example)
+
+    def select_examples(self, input_variables, key, kshots):
+        '''
+        :param input_variables:
+        :param key:
+        :param kshots: [#easy, #ambiguous, #hard] by order
+        :return:
+        '''
+        examples = []
+        pools = [self.easy, self.ambiguous, self.hard]
+        for i in range(len(pools)):
+            samples = random.sample(list(pools[i]), kshots[i])
+            examples.append([self.dataset[sample["sample_index"]] for sample in samples])
+        return examples
+
+
+

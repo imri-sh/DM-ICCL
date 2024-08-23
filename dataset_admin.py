@@ -10,8 +10,8 @@ class BaseDataset(ABC):
     """
 
     @abstractmethod
-    def get_data(self) -> tuple[Dataset, Dataset, Dataset, Dataset]:
-        """Returns the dataset split into 4 disjoint parts: difficulty_train, train, validation, test"""
+    def get_data(self) -> tuple[Dataset, Dataset, Dataset]:
+        """Returns the dataset split into 3 disjoint parts: train, validation, test"""
 
     @staticmethod
     @abstractmethod
@@ -85,30 +85,27 @@ def emotion_convert_to_multiple_choice(sample):
 
 class EmotionDataset(BaseDataset):
 
-    def __init__(self, percentage_of_data_to_use=None):
+    def __init__(self):
         # Load the ARC dataset
         emotion_dataset = load_dataset("emotion", "split")
-
         # Preprocess the dataset to handle numeric labels
         emotion_dataset = emotion_dataset.map(emotion_convert_to_multiple_choice)
-
         self.train = emotion_dataset["train"]
         self.validation = emotion_dataset["validation"]
         self.test = emotion_dataset["test"]
-
-        if percentage_of_data_to_use is not None:
-            self.train = self.train.select(
-                range(int(len(self.train) * percentage_of_data_to_use))
-            )
-            self.validation = self.validation.select(
-                range(int(len(self.validation) * percentage_of_data_to_use))
-            )
-            self.test = self.test.select(
-                range(int(len(self.test) * percentage_of_data_to_use))
-            )
+        # if percentage_of_data_to_use is not None:
+        #     self.train = self.train.select(
+        #         range(int(len(self.train) * percentage_of_data_to_use))
+        #     )
+        #     self.validation = self.validation.select(
+        #         range(int(len(self.validation) * percentage_of_data_to_use))
+        #     )
+        #     self.test = self.test.select(
+        #         range(int(len(self.test) * percentage_of_data_to_use))
+        #     )
 
     def get_data(self):
-        return self.train, self.train_eval, self.validation, self.test
+        return self.train, self.validation, self.test
 
     def create_few_shot_prompt(self, sample, context_examples):
         prompt = "Choose the emotion that best fits the following statements, using the letter of the correct answer.\n\n"

@@ -1,19 +1,7 @@
 import random
-
 import numpy as np
 import torch
 from dataset_admin import ArcDataset, EmotionDataset
-from model_loader import (
-    get_flan_T5_base,
-    get_flan_T5_large,
-    get_flan_T5_xl,
-    get_gemma_2_9b_instruct,
-    get_llama_3_8b_instruct,
-    get_phi2,
-    get_phi3,
-    get_phi3_5,
-)
-
 
 def get_args(parser):
     # Adding arguments to the parser
@@ -28,12 +16,14 @@ def get_args(parser):
         "--portions",
         type=float,
         nargs=3,
+        default=[1.0, 1.0, 1.0],
         help="List of 3 floats between 0 and 1",
     )
 
     parser.add_argument(
         "--kshot", type=int, default=2, help="Number of shots to inject"
     )
+    parser.add_argument("--only_datamap", type=bool, default=False)
     parser.add_argument(
         "--model",
         type=str,
@@ -50,6 +40,7 @@ def get_args(parser):
         ],
         help="Name of model to use",
     )
+    parser.add_argument("--num_evals", type=int, default=5, help="Number of evaluations for each example in datamap")
     parser.add_argument(
         "--seed", type=str, default=42, help="Seed value for random number generator"
     )
@@ -74,32 +65,8 @@ def prase_dataset_arg(dataset_arg):
     elif dataset_arg == "emotions":
         dataset = EmotionDataset()
     else:
-        raise ValueError(f"Invalid dataset arg: {dataset_arg}")
-
+        raise ValueError(f"Dataset {dataset_arg} is not supported.")
     return dataset
-
-
-def parse_model_arg(model_arg):
-    if model_arg == "phi2":
-        model, tokenizer, model_name = get_phi2()
-    elif model_arg == "phi3":
-        model, tokenizer, model_name = get_phi3()
-    elif model_arg == "phi3_5":
-        model, tokenizer, model_name = get_phi3_5()
-    elif model_arg == "flan_t5_base":
-        model, tokenizer, model_name = get_flan_T5_base()
-    elif model_arg == "flan_t5_large":
-        model, tokenizer, model_name = get_flan_T5_large()
-    elif model_arg == "flan_t5_xl":
-        model, tokenizer, model_name = get_flan_T5_xl()
-    elif model_arg == "llama3_8b_instruct":
-        model, tokenizer, model_name = get_llama_3_8b_instruct()
-    elif model_arg == "gemma2_9b_instruct":
-        model, tokenizer, model_name = get_gemma_2_9b_instruct()
-    else:
-        raise ValueError(f"Invalid model arg: {model_arg}")
-    return model, tokenizer, model_name
-
 
 def set_seed(seed):
     random.seed(seed)
