@@ -1,3 +1,4 @@
+import os
 from example_selectors import RandomExampleSelector
 from dataset_admin import ARC_DATASET, Emotion_Dataset
 import numpy as np
@@ -22,17 +23,17 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
     :param k_shots:
     :return:
     """
-    train, train_eval, validation, test = dataset.get_data()
-    train = validation  # TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO
-    test = None  # TODO - Currently not touching this.
+    train, validation, test = dataset.get_data()
+    # train = validation  # TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO
+    # test = None  # TODO - Currently not touching this.
 
     if M is None:
         M = len(train)
     # Printing out the lengths of the data:
     print("\n")
-    print("validation - ", type(validation), "with length", len(validation))
     print("train - ", type(train), "with length", len(train))
-    print("train_eval - ", type(train_eval), "with length", len(train_eval))
+    print("validation - ", type(validation), "with length", len(validation))
+    print("test - ", type(test), "with length", len(test))
 
     # Store results for each sample
     results = []
@@ -46,7 +47,15 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots, M=None):
         correct_probs = []
 
         for _ in range(num_evals):
-            difficulty_samples = random.sample(list(train_eval), k_shots)  # TODO - change to example selector?
+            # TODO - change to example selector?
+            # Probably not because we always use random selection for data mapping
+
+            # Don't use current example in the k-shots
+            train_indices = np.arange(len(train))
+            valid_indices = np.delete(train_indices, sample_idx)
+            selected_indices = np.random.choice(valid_indices, k_shots, replace=False)
+            difficulty_samples = [train[int(i)] for i in selected_indices]
+
             # Create the prompt
             prompt = dataset.create_prompt(sample, difficulty_samples)
             # Tokenize the prompt
@@ -153,8 +162,12 @@ def data_mapping(model, tokenizer, model_name: str, num_evals: int, k_shots: int
     )
 
     easy, ambiguous, hard = assign_difficulty(results)  # Also adds difficulty categories to each example
-    plot_path = f"./datamap {model_name}, {dataset.get_name()}. k={k_shots}, num_evals={num_evals}.png"
+
+    datamaps_dir = "./results/datamaps"
+    os.makedirs(datamaps_dir, exist_ok=True)
+    plot_path = f"{datamaps_dir}/{model_name}_{dataset.get_name()}_k={k_shots}_num_evals={num_evals}.png"
     plot_title = f"{model_name}, {dataset.get_name()} Data Map"
+
     plot_data_map_by_difficulty(easy, ambiguous, hard, title=plot_title, save_path=plot_path)
 
     return results, mean_confidence
@@ -255,14 +268,14 @@ def main():
     model, tokenizer, model_name = (
         get_llama_3_8b_instruct()
     )  # Change to use a different model (see model_loader.py)
-    dataset = Emotion_Dataset(
-        percentage_of_data_to_use=0.1
+    dataset = (
+        ARC_DATASET()
     )  # Change the called function to use a different dataset (see dataset_admin.py)
 
     # Run data mapping:
     # results_k_0 = main(model=model, tokenizer=tokenizer, dataset=dataset, num_evals=1, k_shots=0)
     mean_confidences = []
-    for k in range(0, 5):
+    for k in range(0, 2):
         num_evals = 5 if k != 0 else 1
         results, mean_confidence = data_mapping(
             model=model,
@@ -272,7 +285,12 @@ def main():
             num_evals=num_evals,
             k_shots=k,
         )
-        save_results(results, save_path=f"results for model {model_name} with k={k}, num_evals={num_evals}")
+        results_path = "results/data_mapping_jsons"
+        os.makedirs(results_path, exist_ok=True)
+        save_results(
+            results,
+            save_path=f"{results_path}/{model_name}_{dataset.get_name()}_k={k}_num_evals={num_evals}.json",
+        )
         mean_confidences.append(mean_confidence)
 
     for k in range(0, 5):

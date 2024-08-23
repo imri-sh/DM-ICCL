@@ -45,15 +45,12 @@ class ARC_DATASET(BaseDataset):
         # Preprocess the dataset to handle numeric labels
         arc_dataset = arc_dataset.map(labels_to_chars)
 
-        # Split the dataset - the original train is split into train, train_eval. Validation & test used as is.
-        train_test_split = arc_dataset['train'].train_test_split(test_size=0.33, seed=42)
-        self.train = train_test_split['train']
-        self.train_eval = train_test_split['test']
+        self.train = arc_dataset["train"]
         self.validation = arc_dataset['validation']
         self.test = arc_dataset['test']
 
     def get_data(self):
-        return self.train, self.train_eval, self.validation, self.test
+        return self.train, self.validation, self.test
 
     def create_prompt(self, sample, context_examples):
         prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
@@ -95,21 +92,13 @@ class Emotion_Dataset(BaseDataset):
         # Preprocess the dataset to handle numeric labels
         emotion_dataset = emotion_dataset.map(emotion_convert_to_multiple_choice)
 
-        # Split the dataset - the original train is split into train, train_eval. Validation & test used as is.
-        train_test_split = emotion_dataset["train"].train_test_split(
-            test_size=0.33, seed=42
-        )
-        self.train = train_test_split["train"]
-        self.train_eval = train_test_split["test"]
+        self.train = emotion_dataset["train"]
         self.validation = emotion_dataset["validation"]
         self.test = emotion_dataset["test"]
 
         if percentage_of_data_to_use is not None:
             self.train = self.train.select(
                 range(int(len(self.train) * percentage_of_data_to_use))
-            )
-            self.train_eval = self.train_eval.select(
-                range(int(len(self.train_eval) * percentage_of_data_to_use))
             )
             self.validation = self.validation.select(
                 range(int(len(self.validation) * percentage_of_data_to_use))

@@ -7,6 +7,7 @@ from tqdm import tqdm
 from pathlib import Path
 import argparse
 import random
+from dataset_admin import ARC_DATASET
 import example_selectors
 
 plots_dir = Path('./plots')
@@ -189,7 +190,8 @@ def main():
     # Setting the seed value for reproducibility
     random.seed(args.seed)
     # Load dataset, examples pool and validation set
-    dataset = load_dataset(args.dataset_path, args.dataset_name).map(convert_labels)
+    # dataset = load_dataset(args.dataset_path, args.dataset_name).map(convert_labels)
+    dataset = ARC_DATASET()
     examples_pool, validation_set = get_validation_set_and_examples_pool(dataset, args.pool_size, args.test_size)
 
     # # init example selector instance
