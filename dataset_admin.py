@@ -15,7 +15,7 @@ class BaseDataset(ABC):
 
     @staticmethod
     @abstractmethod
-    def create_prompt(sample, context_examples) -> str:
+    def create_few_shot_prompt(sample, context_examples) -> str:
         """
         Given context examples and a sample (a question for the model to answer), creates and returns
         the prompt to be given to the model.
@@ -37,7 +37,7 @@ def labels_to_chars(sample):
     return sample
 
 
-class ARC_DATASET(BaseDataset):
+class ArcDataset(BaseDataset):
     def __init__(self):
         # Load the ARC dataset
         arc_dataset = load_dataset('ai2_arc', 'ARC-Challenge')
@@ -52,7 +52,7 @@ class ARC_DATASET(BaseDataset):
     def get_data(self):
         return self.train, self.validation, self.test
 
-    def create_prompt(self, sample, context_examples):
+    def create_few_shot_prompt(self, sample, context_examples):
         prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
         for example in context_examples:
             prompt += f"Question: {example['question']}\n"
@@ -83,7 +83,7 @@ def emotion_convert_to_multiple_choice(sample):
     return sample
 
 
-class Emotion_Dataset(BaseDataset):
+class EmotionDataset(BaseDataset):
 
     def __init__(self, percentage_of_data_to_use=None):
         # Load the ARC dataset
@@ -110,7 +110,7 @@ class Emotion_Dataset(BaseDataset):
     def get_data(self):
         return self.train, self.train_eval, self.validation, self.test
 
-    def create_prompt(self, sample, context_examples):
+    def create_few_shot_prompt(self, sample, context_examples):
         prompt = "Choose the emotion that best fits the following statements, using the letter of the correct answer.\n\n"
         for example in context_examples:
             prompt += f"Statement: {example['question']}\n"

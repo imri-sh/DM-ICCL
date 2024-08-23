@@ -1,6 +1,6 @@
 import os
 from example_selectors import RandomExampleSelector
-from dataset_admin import ARC_DATASET, Emotion_Dataset
+from dataset_admin import ArcDataset, EmotionDataset
 import numpy as np
 from tqdm import tqdm
 import random
@@ -269,7 +269,7 @@ def main():
         get_llama_3_8b_instruct()
     )  # Change to use a different model (see model_loader.py)
     dataset = (
-        ARC_DATASET()
+        ArcDataset()
     )  # Change the called function to use a different dataset (see dataset_admin.py)
 
     # Run data mapping:
