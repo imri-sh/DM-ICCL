@@ -3,13 +3,13 @@ from pathlib import Path
 import torch
 from tqdm import tqdm
 from transformers import LogitsProcessor
-
+from utils import plots_dir, results_dir
 import utils
 from dataset_admin import BaseDataset
 from model_loader import ModelLoader
 from args_utils import  set_seed, prase_dataset_arg
 from example_selectors import RandomExampleSelector, BaseExampleSelector
-
+from datetime import datetime
 
 
 class LimitTokensLogitsProcessor(LogitsProcessor):
@@ -36,42 +36,52 @@ class Experiments:
     def set_dataset(self, dataset_name: str, portions=(1.0,1.0,1.0)):
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions)
 
-    # def _trim_data(self, dataset, portions):
-    #     """
-    #     Trims the dataset by selecting a portion of each subset (train, validation, test).
-    #
-    #     :param dataset: The dataset object containing train, validation, and test subsets.
-    #     :param portions: A list or tuple containing the proportions to retain for
-    #                      each subset. Should be in the format [train_portion, validation_portion, test_portion],
-    #                      where each portion is a float between 0 and 1.
-    #
-    #     :return: The trimmed dataset with the specified portions of the train, validation, and test subsets.
-    #     """
-    #     if portions == [1.0,1.0,1.0]: return dataset
-    #     # Select portions of each dataset subset
-    #     dataset.train = dataset.train.select(range(int(len(dataset.train) * portions[0])))
-    #     dataset.validation = dataset.validation.select(range(int(len(dataset.validation) * portions[1])))
-    #     dataset.test = dataset.test.select(range(int(len(dataset.test) * portions[2])))
-    #     return dataset
-
-
-    def experiment_acc_over_k(self, ks: list, title:str, filepath: Path):
-        (trainset, _, _), dataset_name= self.dataset.get_data(), self.dataset.get_name()
-        accs = []
-        example_selector = RandomExampleSelector(trainset)
-        for k in tqdm(ks, desc=f"Evaluating model {self.model_name} on {dataset_name} with kshot"):
+    def experiment_acc_over_k(self, ks: list, title: str):
+        plot_path, results_path = self.generate_result_paths()
+        train_set, _, _ = self.dataset.get_data()
+        dataset_name = self.dataset.get_name()
+        accs = {}
+        example_selector = RandomExampleSelector(train_set)
+        for k in tqdm(
+            ks,
+            desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks}",
+        ):
             accuracy, _, _ = self.evaluate_model(example_selector, k)
-            accs.append(accuracy)
+            accs[k] = accuracy
             print(f"kshot={k}, accuracy_rand={accuracy * 100:.2f}% ")
 
-        utils.plot_accuracies_over_kshots(k_range=ks,
-                                          accuracies=accs,
-                                          title=title,
-                                          filepath=filepath)
+        utils.plot_accuracies_over_kshots(
+            k_range=list(accs.keys()),
+            accuracies=list(accs.values()),
+            title=title,
+            filepath=plot_path,
+        )
+        utils.save_results(accs, save_path=results_path)
+
         return accs
 
+    def generate_result_paths(self):
+        dataset_name = self.dataset.get_name()
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        experiment_plots_dir = plots_dir / "experiments"
+        experiment_plots_dir.mkdir(exist_ok=True)
+        experiment_results_dir = results_dir / "experiments"
+        experiment_results_dir.mkdir(exist_ok=True)
 
-    def evaluate_model(self, example_selector:BaseExampleSelector, k: int, eval_testset:bool=False):
+        plot_path = (
+            experiment_plots_dir
+            / f"{self.model_name}_{dataset_name}_accs_over_k_{timestamp}.png"
+        )
+        results_path = (
+            experiment_results_dir
+            / f"{self.model_name}_{dataset_name}_accs_over_k_{timestamp}.json"
+        )
+
+        return plot_path, results_path
+
+    def evaluate_model(
+        self, example_selector: BaseExampleSelector, k: int, eval_test_set: bool = False
+    ):
 
         # Define the tokens for 'A', 'B', 'C', 'D'
         allowed_tokens = [
@@ -88,10 +98,10 @@ class Experiments:
         accuracy = 0
 
         _, val_set, test_set = self.dataset.get_data()
-        evaluation_set = test_set if eval_testset else val_set
+        evaluation_set = test_set if eval_test_set else val_set
 
         print(
-            f"Evaluating on {len(evaluation_set)} samples of {'test' if eval_testset else 'validation'} set"
+            f"Evaluating on {len(evaluation_set)} samples of {'test' if eval_test_set else 'validation'} set"
         )
         for sample in tqdm(evaluation_set):
             examples = example_selector.select_examples(
@@ -109,7 +119,6 @@ class Experiments:
                 logits_processor=[logits_processor],
             )
 
-            # TODO: make sure pred_label is calculated correctly
             pred_label = self.tokenizer.decode(
                 outputs["sequences"][0][-1], skip_special_tokens=True
             ).strip()
@@ -140,19 +149,7 @@ class Experiments:
                 f")")
 
 
-
-
-
-
-
-
-
-
-
-
-
 # plots_dir / (filename + '.png')
-
 
 
 '''

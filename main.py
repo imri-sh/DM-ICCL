@@ -10,21 +10,18 @@ from utils import plots_dir, data_mapping_jsons_dir
 import torch
 from data_mapping import data_mapping
 
-def run_experiments(args):
 
+def run_experiments(args):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
     print(experiments)
     # Get the current timestamp
-    current_timestamp = datetime.now()
-    print("Experiment timestamp: {}".format(current_timestamp))
     # Format the timestamp for a file name without seconds
-    timestamp = current_timestamp.strftime("%Y%m%d_%H%M")
-    plots_dir.mkdir(exist_ok=True)
-    experiments.experiment_acc_over_k(ks=[1,4],
-                                      title=f"Model: {args.model} \n Dataset: {args.dataset}",
-                                      filepath=plots_dir / f"{args.model}_{args.dataset}_accs_over_k_{timestamp}.png"
-                                     )
+    experiments.experiment_acc_over_k(
+        ks=args.kshots,
+        title=f"Model: {args.model} \n Dataset: {args.dataset}",
+    )
+
 
 def test_data_mapping(args):
     set_seed(args.seed)
@@ -60,11 +57,13 @@ def test_data_mapping(args):
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
-    if args.only_datamap:
+    if args.datamap:
         print("Performing data mapping...")
         test_data_mapping(args)
     else:
         print("Running evaluation experiments...")
+        # args.portions = (0.1, 0.1, 0.1)
+        args.model = "llama3_8b_instruct"
         run_experiments(args)
 
 if __name__ == '__main__':

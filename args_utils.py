@@ -21,9 +21,9 @@ def get_args(parser):
     )
 
     parser.add_argument(
-        "--kshot", type=int, default=2, help="Number of shots to inject"
+        "--kshots", type=int, nargs="+", default=[1, 4], help="List of k shots to use"
     )
-    parser.add_argument("--only_datamap", type=bool, default=False)
+    parser.add_argument("--datamap", type=bool, default=False)
     parser.add_argument(
         "--model",
         type=str,
@@ -48,13 +48,14 @@ def get_args(parser):
         "--example_selector_type",
         type=str,
         default="random",
-        help="The type of example selector to use [sim, random]",
+        choices=["random", "sim"],
+        help="The type of example selector to use",
     )
     parser.add_argument(
         "--encoder_path",
         type=str,
         default="all-MiniLM-L6-v2",
-        help="The path of the encoder to use",
+        help="The path of the encoder to use in similarity based example selector",
     )
     return parser
 
