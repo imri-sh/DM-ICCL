@@ -15,8 +15,6 @@ def run_experiments(args):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
     print(experiments)
-    # Get the current timestamp
-    # Format the timestamp for a file name without seconds
     experiments.experiment_acc_over_k(
         ks=args.kshots,
         title=f"Model: {args.model} \n Dataset: {args.dataset}",
@@ -57,13 +55,25 @@ def test_data_mapping(args):
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
-    if args.datamap:
-        print("Performing data mapping...")
-        test_data_mapping(args)
-    else:
-        print("Running evaluation experiments...")
-        # args.portions = (0.1, 0.1, 0.1)
-        args.model = "llama3_8b_instruct"
+    # if args.datamap:
+    #     print("Performing data mapping...")
+    #     test_data_mapping(args)
+    # else:
+    #     print("Running evaluation experiments...")
+    #     # args.portions = (0.1, 0.1, 0.1)
+    #     # args.model = "llama3_8b_instruct"
+    #     run_experiments(args)
+
+    # for model in [
+    #     "phi3_5",
+    #     "flan_t5_xl",
+    #     "llama3_8b_instruct",
+    #     "gemma2_9b_instruct",
+    # ]:
+    #     args.model = model
+    for model in ["llama3_8b_instruct", "gemma2_9b_instruct"]:
+        args.model = model
+        args.kshots = [0, 1, 2, 3]
         run_experiments(args)
 
 if __name__ == '__main__':

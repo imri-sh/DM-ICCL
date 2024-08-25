@@ -77,6 +77,14 @@ class ModelLoader:
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             return model, tokenizer, "gemma-2-9B-instruct"
+        elif model_name == "llama_3_8B":
+            model_name = "meta-llama/Meta-Llama-3-8B"
+            model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
+                device
+            )
+            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            return model, tokenizer, "llama_3_8B"
+
         else:
             raise Exception(f'{model_name} currently not supported.')
 

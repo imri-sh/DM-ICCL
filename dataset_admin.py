@@ -53,7 +53,7 @@ class ArcDataset(BaseDataset):
         return self.train, self.validation, self.test
 
     def create_few_shot_prompt(self, sample, context_examples):
-        prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
+        prompt = ""
         for example in context_examples:
             prompt += f"Question: {example['question']}\n"
             for i, choice in enumerate(example['choices']['text']):
@@ -66,13 +66,60 @@ class ArcDataset(BaseDataset):
         prompt += "Answer: "
         return prompt
 
+    # def create_few_shot_prompt2(self, sample, context_examples):
+    #     prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
+    #     for example in context_examples:
+    #         prompt += f"Question: {example['question']}\n"
+    #         for i, choice in enumerate(example['choices']['text']):
+    #             prompt += f"{chr(65 + i)}. {choice}\n"
+    #         prompt += f"Answer: {example['answerKey']}\n\n"
+
+    #     prompt += f"Question: {sample['question']}\n"
+    #     for i, choice in enumerate(sample['choices']['text']):
+    #         prompt += f"{chr(65 + i)}. {choice}\n"
+    #     prompt += "Answer: "
+    #     return prompt
+
+    # def create_few_shot_prompt(self, sample, context_examples):
+    #     prompt = "Choose the correct answers for the following questions, using the letter of the correct answer. "
+    #     for example in context_examples:
+    #         prompt += f"Question: {example['question']}. "
+    #         for i, choice in enumerate(example['choices']['text']):
+    #             prompt += f"{chr(65 + i)}. {choice}. "
+    #         prompt += f"Answer: {example['answerKey']} ."
+
+    #     prompt += f"Question: {sample['question']}. "
+    #     for i, choice in enumerate(sample['choices']['text']):
+    #         prompt += f"{chr(65 + i)}. {choice}. "
+    #     prompt += "Answer: "
+    #     return prompt
+
+    # def create_few_shot_prompt(self, sample, context_examples):
+    #     prompt = (
+    #         "You are a knowledgeable assistant. Below are some questions along with the "
+    #         "correct answers. Please use the same reasoning to answer the new question at the end.\n\n"
+    #     )
+
+    #     for example in context_examples:
+    #         prompt += f"Question: {example['question']}\n"
+    #         for i, choice in enumerate(example['choices']['text']):
+    #             prompt += f"{chr(65 + i)}. {choice}\n"
+    #         prompt += f"Answer: {example['answerKey']}\n\n"
+
+    #     prompt += "Now, here is a new question:\n"
+    #     prompt += f"Question: {sample['question']}\n"
+    #     for i, choice in enumerate(sample['choices']['text']):
+    #         prompt += f"{chr(65 + i)}. {choice}\n"
+    #     prompt += "Answer: "
+    #     return prompt
+
     def get_name(self):
         return "ARC-challenge dataset"
 
 
 EMOTION_LABELS = ["sadness", "joy", "love", "anger", "fear", "surprise"]
-LABELS = ["A", "B", "C", "D", "E", "F"]
-CHOICES = {"text": EMOTION_LABELS, "label": LABELS}
+EMOTIONS_LABELS = ["A", "B", "C", "D", "E", "F"]
+CHOICES = {"text": EMOTION_LABELS, "label": EMOTIONS_LABELS}
 
 
 def emotion_convert_to_multiple_choice(sample):
@@ -123,3 +170,51 @@ class EmotionDataset(BaseDataset):
 
     def get_name(self):
         return "Emotion dataset"
+
+AGNEWS_LABELS = ["World", "Sports", "Business", "Sci/Tech"]
+AGNEWS_LABELS = ["A", "B", "C", "D"]
+CHOICES = {"text": AGNEWS_LABELS, "label": AGNEWS_LABELS}
+
+
+def agnews_convert_to_multiple_choice(sample):
+    # Convert numeric labels to letters
+    sample["answerKey"] = chr(65 + int(sample["label"]))  # '0' -> 'A', '1' -> 'B', etc.
+    sample["question"] = sample["text"]
+    sample["choices"] = CHOICES
+    return sample
+
+
+class AGNews(BaseDataset):
+    def __init__(self):
+        # Load the AG News dataset
+        ag_news_dataset = load_dataset("ag_news", "default")
+
+        # Preprocess the dataset to handle numeric labels
+        ag_news_dataset = ag_news_dataset.map(agnews_convert_to_multiple_choice)
+
+        all_train = ag_news_dataset["train"]
+        split = all_train.train_test_split(test_size=0.2)
+        self.train = split["train"]
+        self.validation = split["test"]
+        self.test = ag_news_dataset["test"]
+
+    def get_data(self):
+        return self.train, self.validation, self.test
+
+    def create_few_shot_prompt(self, sample, context_examples):
+        prompt = "Classify the news articles into the categories. \n"
+        for example in context_examples:
+            prompt += f"News: {example['question']}\n"
+            for i, choice in enumerate(example["choices"]["text"]):
+                prompt += f"{chr(65 + i)}. {choice}\n"
+            prompt += f"Answer: {example['answerKey']}\n\n"
+
+        prompt += f"News: {sample['question']}\n"
+        for i, choice in enumerate(sample["choices"]["text"]):
+            prompt += f"{chr(65 + i)}. {choice}\n"
+
+        prompt += "Answer: "
+        return prompt
+
+    def get_name(self):
+        return "AG News dataset"
