@@ -18,14 +18,14 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
     :param k_shots:
     :return:
     """
-    train, validation, test = dataset.get_data()
+    train, _,_= dataset.get_data()
     # train = validation  # TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO
     # test = None  # TODO - Currently not touching this.
 
-    # Printing out the lengths of the data:
-    print("train - ", type(train), "with length", len(train))
-    print("validation - ", type(validation), "with length", len(validation))
-    print("test - ", type(test), "with length", len(test))
+    # # Printing out the lengths of the data:
+    # print("train - ", type(train), "with length", len(train))
+    # print("validation - ", type(validation), "with length", len(validation))
+    # print("test - ", type(test), "with length", len(test))
 
     # Store results for each sample
     results = []
@@ -130,6 +130,7 @@ def data_mapping(model, tokenizer, dataset, num_evals: int, k_shots: int, title:
     """
     # Get results for each sample
     # M = None  # TODO - this is for the sake of testing. If M=None, defaults to using entire training set
+    print("Making datamap...")
     results = get_confidence_std(dataset, model, tokenizer, num_evals, k_shots)
     # Extract mean and std probabilities
     mean_probs = [result['mean_confidence'] for result in results]

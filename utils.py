@@ -9,7 +9,8 @@ data_mapping_jsons_dir = Path("./results/data_mapping_jsons")
 results_dir = Path("./results")
 # datamaps_dir = Path("./results/datamaps")
 plots_dir = Path('./plots')
-
+experiment_results_dir = results_dir / "experiments"
+experiment_results_dir.mkdir(exist_ok=True)
 
 def plot_confusion_matrix(all_labels, all_preds, normalize=False, title='Confusion matrix',
                           cmap='Blues', filepath:Path=None):

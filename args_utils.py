@@ -23,6 +23,9 @@ def get_args(parser):
     parser.add_argument(
         "--kshots", type=int, nargs="+", default=[0, 1], help="List of k shots to use"
     )
+    parser.add_argument(
+        "--datamap_kshots", type=int, nargs=1, default=3, help="List of k shots to use"
+    )
     parser.add_argument("--datamap", type=bool, default=False)
     parser.add_argument(
         "--models",
@@ -48,7 +51,7 @@ def get_args(parser):
         "--example_selector_type",
         type=str,
         default="random",
-        choices=["random", "sim"],
+        choices=["random", "similarity","datamap"],
         help="The type of example selector to use",
     )
     parser.add_argument(

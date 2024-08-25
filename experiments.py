@@ -3,14 +3,15 @@ from pathlib import Path
 import torch
 from tqdm import tqdm
 from transformers import LogitsProcessor
+
+import example_selectors
 from utils import plots_dir, results_dir
 import utils
 from dataset_admin import BaseDataset
 from model_loader import ModelLoader
 from args_utils import  set_seed, prase_dataset_arg
-from example_selectors import RandomExampleSelector, BaseExampleSelector
 from datetime import datetime
-
+from example_selectors import ExampleSelectorFactory
 
 class LimitTokensLogitsProcessor(LogitsProcessor):
     def __init__(self, allowed_tokens):
@@ -35,19 +36,35 @@ class Experiments:
     def set_dataset(self, dataset_name: str, portions=(1.0,1.0,1.0)):
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions)
 
-    def experiment_acc_over_k(self, ks: list, title: str, show_plot:bool=True,timestamp:str=""):
+    def get_datamap_path(self, timestamp):
+        return utils.data_mapping_jsons_dir / f"{self.model_name}_{self.dataset.get_name()}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}_{timestamp}.json"
+
+    def experiment_acc_over_k(self, title: str="", show_plot:bool=True,timestamp:str=""):
         plot_path, results_path = self.generate_result_paths(timestamp)
+        datamap_path = self.get_datamap_path(timestamp)
         train_set, _, _ = self.dataset.get_data()
+        example_selector_type = self.args.example_selector_type
         dataset_name = self.dataset.get_name()
+        ks = self.args.kshots
         accs = {}
-        example_selector = RandomExampleSelector(train_set)
-        for k in tqdm(
-            ks,
-            desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks}",
-        ):
+        kwargs = {
+                 'model':self.model,
+                 'tokenizer':self.tokenizer,
+                 'model_name':self.model_name,
+                 'dataset':self.dataset,
+                 'examples': train_set,
+                 'num_evals':self.args.num_evals,
+                 'datamap_kshots': self.args.datamap_kshots,
+                 'datamap_path': datamap_path,
+                 'key':'question'}
+        example_selector = ExampleSelectorFactory.get_example_selector(example_selector_type=example_selector_type,
+                                                                       **kwargs)
+
+        for k in tqdm(ks,desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using {example_selector_type} example selector"):
             accuracy, _, _ = self.evaluate_model(example_selector, k)
             accs[k] = accuracy
             print(f"kshot={k}, accuracy={accuracy * 100:.2f}% ")
+
         if show_plot:
             utils.plot_accuracies_over_kshots(
                 k_range=list(accs.keys()),
@@ -77,7 +94,7 @@ class Experiments:
 
         return plot_path, results_path
     def evaluate_model(
-        self, example_selector: BaseExampleSelector, k: int, eval_test_set: bool = False
+        self, example_selector, k: int, eval_test_set: bool = False
     ):
 
         # Define the tokens for 'A', 'B', 'C', 'D'

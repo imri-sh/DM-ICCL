@@ -65,6 +65,7 @@ class ArcDataset(BaseDataset):
     #         prompt += f"{chr(65 + i)}. {choice}\n"
     #     prompt += "Answer: "
     #     return prompt
+
     def create_few_shot_prompt(self, sample, context_examples):
         prompt = ("Given a question answering task from the 3rd to 9th-grade science exam. "
                   "The question contains four options 'A.', 'B.', 'C.' and 'D.' "
@@ -99,7 +100,6 @@ def emotion_convert_to_multiple_choice(sample):
 
 
 class EmotionDataset(BaseDataset):
-
     def __init__(self):
         # Load the ARC dataset
         emotion_dataset = load_dataset("emotion", "split")
