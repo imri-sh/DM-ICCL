@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-
-
+import seaborn as sns
+import pandas as pd
 data_mapping_jsons_dir = Path("./results/data_mapping_jsons")
 results_dir = Path("./results")
 # datamaps_dir = Path("./results/datamaps")
@@ -129,3 +129,24 @@ def load_results(load_path: Path=None):
         with open(load_path, 'r') as f:
             results = json.load(f)
         return results
+
+def plot_experiments(experiments_results_path, plot_path):
+    df = pd.read_csv(experiments_results_path)
+    # Melt the DataFrame for easier plotting
+    df_melted = df.melt(id_vars='kshots', var_name='Model_Dataset', value_name='Accuracy')
+
+    # Plotting with seaborn
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(data=df_melted, x='kshots', y='Accuracy', hue='Model_Dataset', marker='o')
+
+    # Adding titles and labels
+    plt.title('Model Accuracy vs. kshots', fontsize=16)
+    plt.xlabel('kshots', fontsize=14)
+    plt.ylabel('Accuracy', fontsize=14)
+
+    # Enhancing grid and legend
+    plt.grid(True)
+    plt.legend(title='Model & Dataset', fontsize=12, title_fontsize='13')
+    plt.savefig(plot_path)
+    # Show plot
+    plt.show()

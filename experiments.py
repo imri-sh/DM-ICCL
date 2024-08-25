@@ -25,10 +25,8 @@ class Experiments:
     def __init__(self, args):
         self.args = args
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # self.dataset = utils.trim_data(prase_dataset_arg(args.dataset[0]), args.portions)
         self.dataset = None
         self.model, self.tokenizer, self.model_name = None, None, None
-        # self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(args.models, device=self.device)
         set_seed(args.seed)
 
     def set_model(self, model_name: str):
@@ -37,8 +35,8 @@ class Experiments:
     def set_dataset(self, dataset_name: str, portions=(1.0,1.0,1.0)):
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions)
 
-    def experiment_acc_over_k(self, ks: list, title: str, show_plot:bool=True):
-        plot_path, results_path = self.generate_result_paths()
+    def experiment_acc_over_k(self, ks: list, title: str, show_plot:bool=True,timestamp:str=""):
+        plot_path, results_path = self.generate_result_paths(timestamp)
         train_set, _, _ = self.dataset.get_data()
         dataset_name = self.dataset.get_name()
         accs = {}
@@ -60,9 +58,9 @@ class Experiments:
         utils.save_results(accs, save_path=results_path)
         return accs
 
-    def generate_result_paths(self):
+    def generate_result_paths(self, timestamp:str=""):
         dataset_name = self.dataset.get_name()
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        # timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         experiment_plots_dir = plots_dir / "experiments"
         experiment_plots_dir.mkdir(exist_ok=True)
         experiment_results_dir = results_dir / "experiments"
