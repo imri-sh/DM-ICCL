@@ -18,7 +18,6 @@ class BaseExampleSelector(ABC):
     def add_example(self, example: Dict[str, str]) -> Any:
         """Add new example to store."""
 
-
 class RandomExampleSelector(BaseExampleSelector):
     def __init__(self, examples):
         self.examples = examples

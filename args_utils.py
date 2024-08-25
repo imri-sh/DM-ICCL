@@ -6,10 +6,10 @@ from dataset_admin import AgNewsDataset, ArcDataset, EmotionDataset
 def get_args(parser):
     # Adding arguments to the parser
     parser.add_argument(
-        "--dataset",
+        "--datasets",
         type=str,
-        default="arc",
-        choices=["arc", "emotions", "agnews"],
+        default="arc,emotions",
+        # choices=["arc", "emotions"],
         help="Dataset to use",
     )
     parser.add_argument(
@@ -21,23 +21,23 @@ def get_args(parser):
     )
 
     parser.add_argument(
-        "--kshots", type=int, nargs="+", default=[1, 4], help="List of k shots to use"
+        "--kshots", type=int, nargs="+", default=[0, 1], help="List of k shots to use"
     )
     parser.add_argument("--datamap", type=bool, default=False)
     parser.add_argument(
-        "--model",
+        "--models",
         type=str,
-        default="phi3_5",
-        choices=[
-            "phi2",
-            "phi3",
-            "phi3_5",
-            "flan_t5_base",
-            "flan_t5_large",
-            "flan_t5_xl",
-            "llama3_8b_instruct",
-            "gemma2_9b_instruct",
-        ],
+        default="flan_t5_base,phi2",
+        # choices=[
+        #     "phi2",
+        #     "phi3",
+        #     "phi3_5",
+        #     "flan_t5_base",
+        #     "flan_t5_large",
+        #     "flan_t5_xl",
+        #     "llama3_8b_instruct",
+        #     "gemma2_9b_instruct",
+        # ],
         help="Name of model to use",
     )
     parser.add_argument("--num_evals", type=int, default=5, help="Number of evaluations for each example in datamap")

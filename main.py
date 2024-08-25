@@ -1,26 +1,76 @@
 import argparse
 from datetime import datetime
+from itertools import product
 from pathlib import Path
+
+import pandas as pd
+from matplotlib import pyplot as plt
+from tqdm import tqdm
 
 import utils
 from args_utils import get_args, prase_dataset_arg, set_seed
 from experiments import Experiments
 from model_loader import set_dtype, ModelLoader
-from utils import plots_dir, data_mapping_jsons_dir
+from utils import plots_dir, data_mapping_jsons_dir, save_results
 import torch
 from data_mapping import data_mapping
+import seaborn as sns
 
+def plot_experiments(experiments_results):
+    # Melt the DataFrame for easier plotting
+    df_melted = experiments_results.melt(id_vars='kshots', var_name='Model_Dataset', value_name='Accuracy')
 
-def run_experiments(args):
+    # Plotting with seaborn
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(data=df_melted, x='kshots', y='Accuracy', hue='Model_Dataset', marker='o')
+
+    # Adding titles and labels
+    plt.title('Model Accuracy vs. kshots', fontsize=16)
+    plt.xlabel('kshots', fontsize=14)
+    plt.ylabel('Accuracy', fontsize=14)
+
+    # Enhancing grid and legend
+    plt.grid(True)
+    plt.legend(title='Model & Dataset', fontsize=12, title_fontsize='13')
+
+    # Show plot
+    plt.show()
+def run_experiments(args, show_plot=True):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
-    print(experiments)
-    experiments.experiment_acc_over_k(
-        ks=args.kshots,
-        title=f"Model: {args.model} \n Dataset: {args.dataset}",
-    )
 
+    # Initialize an empty DataFrame with datasets and models as columns, and k-shots as rows
+    experiment_results = pd.DataFrame()
+    experiment_results.insert(0, 'kshots', args.kshots)
+    experiment_results.set_index('kshots', inplace=True)
+    num_of_experiments = len(args.models)*len(args.datasets)
+    for i, (model_name, dataset_name) in enumerate(product(args.models, args.datasets)):
+        print(f"Running experiment {i+1}/{num_of_experiments}")
+        # print(experiments)
+        experiments.set_model(model_name=model_name)
+        experiments.set_dataset(dataset_name=dataset_name, portions=args.portions)
 
+        # Collect accuracy results over k-shots
+        accs = experiments.experiment_acc_over_k(
+            ks=args.kshots,
+            title=f"Model: {model_name} \n Dataset: {dataset_name}",
+            show_plot=False
+        )
+
+        # Populate the DataFrame with accuracy values
+        for k, acc in accs.items():
+            col_name = f"{dataset_name}_{model_name}"
+            experiment_results.loc[k, col_name] = acc
+        print(experiment_results)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    experiment_results_dir = utils.results_dir / "experiments"
+    experiment_results_dir.mkdir(exist_ok=True)
+    experiment_results_path = experiment_results_dir/ f'experiment_results_{timestamp}.csv'
+    experiment_results.to_csv(experiment_results_path, index=True)
+    if show_plot:
+        plot_experiments(experiment_results)
+    return experiment_results_path
 def test_data_mapping(args):
     set_seed(args.seed)
     set_dtype(fp_type="fp16")
@@ -55,28 +105,21 @@ def test_data_mapping(args):
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
+    args.models = args.models.split(',')
+    args.datasets = args.datasets.split(',')
     # if args.datamap:
     #     print("Performing data mapping...")
     #     test_data_mapping(args)
     # else:
-    #     print("Running evaluation experiments...")
-    #     # args.portions = (0.1, 0.1, 0.1)
-    #     # args.model = "llama3_8b_instruct"
-    #     run_experiments(args)
-
-    # for model in [
-    #     "phi3_5",
-    #     "flan_t5_xl",
-    #     "llama3_8b_instruct",
-    #     "gemma2_9b_instruct",
-    # ]:
+    print("Running evaluation experiments...")
+    # for model in ["llama2_7b"]:
     #     args.model = model
-    for model in ["llama3_8b_instruct", "gemma2_9b_instruct", "phi3_5"]:
-        args.model = model
-        args.dataset = "agnews"
-        args.kshots = [0, 1, 3, 10]
-        args.portions = (0.1, 0.01, 0.01)
-        run_experiments(args)
+    # args.kshots = [1]
+    # experiments_results = run_experiments(args)
+    # print(experiments_results)
+    # df = pd.read_csv(utils.results_dir/'experiments/experiment_results_20240825_1643.csv')
+    # df.rename(columns={'Unnamed: 0': 'kshots'}, inplace=True)
+    # plot_experiments(df)
 
 if __name__ == '__main__':
     main()

@@ -52,8 +52,23 @@ class ArcDataset(BaseDataset):
     def get_data(self):
         return self.train, self.validation, self.test
 
+    # def create_few_shot_prompt(self, sample, context_examples):
+    #     prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
+    #     for example in context_examples:
+    #         prompt += f"Question: {example['question']}\n"
+    #         for i, choice in enumerate(example['choices']['text']):
+    #             prompt += f"{chr(65 + i)}. {choice}\n"
+    #         prompt += f"Answer: {example['answerKey']}\n\n"
+    #
+    #     prompt += f"Question: {sample['question']}\n"
+    #     for i, choice in enumerate(sample['choices']['text']):
+    #         prompt += f"{chr(65 + i)}. {choice}\n"
+    #     prompt += "Answer: "
+    #     return prompt
     def create_few_shot_prompt(self, sample, context_examples):
-        prompt = ""
+        prompt = ("Given a question answering task from the 3rd to 9th-grade science exam. "
+                  "The question contains four options 'A.', 'B.', 'C.' and 'D.' "
+                  "Select the most appropriate choice that answers the question. Here are few examples:\n")
         for example in context_examples:
             prompt += f"Question: {example['question']}\n"
             for i, choice in enumerate(example['choices']['text']):
@@ -66,60 +81,13 @@ class ArcDataset(BaseDataset):
         prompt += "Answer: "
         return prompt
 
-    # def create_few_shot_prompt2(self, sample, context_examples):
-    #     prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
-    #     for example in context_examples:
-    #         prompt += f"Question: {example['question']}\n"
-    #         for i, choice in enumerate(example['choices']['text']):
-    #             prompt += f"{chr(65 + i)}. {choice}\n"
-    #         prompt += f"Answer: {example['answerKey']}\n\n"
-
-    #     prompt += f"Question: {sample['question']}\n"
-    #     for i, choice in enumerate(sample['choices']['text']):
-    #         prompt += f"{chr(65 + i)}. {choice}\n"
-    #     prompt += "Answer: "
-    #     return prompt
-
-    # def create_few_shot_prompt(self, sample, context_examples):
-    #     prompt = "Choose the correct answers for the following questions, using the letter of the correct answer. "
-    #     for example in context_examples:
-    #         prompt += f"Question: {example['question']}. "
-    #         for i, choice in enumerate(example['choices']['text']):
-    #             prompt += f"{chr(65 + i)}. {choice}. "
-    #         prompt += f"Answer: {example['answerKey']} ."
-
-    #     prompt += f"Question: {sample['question']}. "
-    #     for i, choice in enumerate(sample['choices']['text']):
-    #         prompt += f"{chr(65 + i)}. {choice}. "
-    #     prompt += "Answer: "
-    #     return prompt
-
-    # def create_few_shot_prompt(self, sample, context_examples):
-    #     prompt = (
-    #         "You are a knowledgeable assistant. Below are some questions along with the "
-    #         "correct answers. Please use the same reasoning to answer the new question at the end.\n\n"
-    #     )
-
-    #     for example in context_examples:
-    #         prompt += f"Question: {example['question']}\n"
-    #         for i, choice in enumerate(example['choices']['text']):
-    #             prompt += f"{chr(65 + i)}. {choice}\n"
-    #         prompt += f"Answer: {example['answerKey']}\n\n"
-
-    #     prompt += "Now, here is a new question:\n"
-    #     prompt += f"Question: {sample['question']}\n"
-    #     for i, choice in enumerate(sample['choices']['text']):
-    #         prompt += f"{chr(65 + i)}. {choice}\n"
-    #     prompt += "Answer: "
-    #     return prompt
-
     def get_name(self):
         return "ARC-challenge dataset"
 
 
 EMOTION_LABELS = ["sadness", "joy", "love", "anger", "fear", "surprise"]
-EMOTION_LABELS_LETTERS = ["A", "B", "C", "D", "E", "F"]
-CHOICES = {"text": EMOTION_LABELS, "label": EMOTION_LABELS_LETTERS}
+LABELS = ["A", "B", "C", "D", "E", "F"]
+CHOICES = {"text": EMOTION_LABELS, "label": LABELS}
 
 
 def emotion_convert_to_multiple_choice(sample):
@@ -140,16 +108,6 @@ class EmotionDataset(BaseDataset):
         self.train = emotion_dataset["train"]
         self.validation = emotion_dataset["validation"]
         self.test = emotion_dataset["test"]
-        # if percentage_of_data_to_use is not None:
-        #     self.train = self.train.select(
-        #         range(int(len(self.train) * percentage_of_data_to_use))
-        #     )
-        #     self.validation = self.validation.select(
-        #         range(int(len(self.validation) * percentage_of_data_to_use))
-        #     )
-        #     self.test = self.test.select(
-        #         range(int(len(self.test) * percentage_of_data_to_use))
-        #     )
 
     def get_data(self):
         return self.train, self.validation, self.test

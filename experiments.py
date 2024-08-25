@@ -25,9 +25,10 @@ class Experiments:
     def __init__(self, args):
         self.args = args
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.dataset = utils.trim_data(prase_dataset_arg(args.dataset), args.portions)
-
-        self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(args.model, device=self.device)
+        # self.dataset = utils.trim_data(prase_dataset_arg(args.dataset[0]), args.portions)
+        self.dataset = None
+        self.model, self.tokenizer, self.model_name = None, None, None
+        # self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(args.models, device=self.device)
         set_seed(args.seed)
 
     def set_model(self, model_name: str):
@@ -36,7 +37,7 @@ class Experiments:
     def set_dataset(self, dataset_name: str, portions=(1.0,1.0,1.0)):
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions)
 
-    def experiment_acc_over_k(self, ks: list, title: str):
+    def experiment_acc_over_k(self, ks: list, title: str, show_plot:bool=True):
         plot_path, results_path = self.generate_result_paths()
         train_set, _, _ = self.dataset.get_data()
         dataset_name = self.dataset.get_name()
@@ -48,16 +49,15 @@ class Experiments:
         ):
             accuracy, _, _ = self.evaluate_model(example_selector, k)
             accs[k] = accuracy
-            print(f"kshot={k}, accuracy_rand={accuracy * 100:.2f}% ")
-
-        utils.plot_accuracies_over_kshots(
-            k_range=list(accs.keys()),
-            accuracies=list(accs.values()),
-            title=title,
-            filepath=plot_path,
-        )
+            print(f"kshot={k}, accuracy={accuracy * 100:.2f}% ")
+        if show_plot:
+            utils.plot_accuracies_over_kshots(
+                k_range=list(accs.keys()),
+                accuracies=list(accs.values()),
+                title=title,
+                filepath=plot_path,
+            )
         utils.save_results(accs, save_path=results_path)
-
         return accs
 
     def generate_result_paths(self):
@@ -78,7 +78,6 @@ class Experiments:
         )
 
         return plot_path, results_path
-
     def evaluate_model(
         self, example_selector: BaseExampleSelector, k: int, eval_test_set: bool = False
     ):
@@ -103,10 +102,9 @@ class Experiments:
         print(
             f"Evaluating on {len(evaluation_set)} samples of {'test' if eval_test_set else 'validation'} set"
         )
+
         for sample in tqdm(evaluation_set):
-            examples = example_selector.select_examples(
-                input_variables=sample, key="question", kshot=k
-            )
+            examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k)
             few_shot_prompt = self.dataset.create_few_shot_prompt(sample, examples)
 
             inputs = self.tokenizer(few_shot_prompt, return_tensors="pt").to(self.device)
@@ -136,24 +134,23 @@ class Experiments:
         return accuracy, all_preds, all_labels
 
     def __repr__(self):
+        if not self.dataset and not self.model:
+            return (f"Experiments(\n"
+                    f"  model_name='{self.model_name}',\n"
+                    f"  device='{self.device}',\n"
+                    f"  dataset='{self.dataset}',\n"
+                    f"  seed={self.args.seed}\n"
+                    f"  kshots={self.args.kshots}"
+                    f")")
+
         portions = {"train": f"{len(self.dataset.train)} ({int(self.args.portions[0]*100)}%)",
                     "validation": f"{len(self.dataset.validation)} ({int(self.args.portions[1]*100)}%)",
                     "test": f"{len(self.dataset.test)} ({int(self.args.portions[2]*100)}%)"}
-
         return (f"Experiments(\n"
                 f"  model_name='{self.model_name}',\n"
                 f"  device='{self.device}',\n"
                 f"  dataset_sizes={portions},\n"
-                f"  dataset='{self.args.dataset}',\n"
+                f"  dataset='{self.dataset.get_name()}',\n"
                 f"  seed={self.args.seed}\n"
+                f"  kshots={self.args.kshots}"
                 f")")
-
-
-# plots_dir / (filename + '.png')
-
-
-'''
-plots_dir / (
-        f"{model_name}_{dataset_name}_accs_over_k.png".replace("-", "_")
-        .replace(".", "_")
-        .lower()'''

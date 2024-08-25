@@ -10,6 +10,7 @@ results_dir = Path("./results")
 # datamaps_dir = Path("./results/datamaps")
 plots_dir = Path('./plots')
 
+
 def plot_confusion_matrix(all_labels, all_preds, normalize=False, title='Confusion matrix',
                           cmap='Blues', filepath:Path=None):
     labels = ["A", "B", "C", "D"]
