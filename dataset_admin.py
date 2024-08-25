@@ -118,8 +118,8 @@ class ArcDataset(BaseDataset):
 
 
 EMOTION_LABELS = ["sadness", "joy", "love", "anger", "fear", "surprise"]
-EMOTIONS_LABELS = ["A", "B", "C", "D", "E", "F"]
-CHOICES = {"text": EMOTION_LABELS, "label": EMOTIONS_LABELS}
+EMOTION_LABELS_LETTERS = ["A", "B", "C", "D", "E", "F"]
+CHOICES = {"text": EMOTION_LABELS, "label": EMOTION_LABELS_LETTERS}
 
 
 def emotion_convert_to_multiple_choice(sample):
@@ -172,8 +172,8 @@ class EmotionDataset(BaseDataset):
         return "Emotion dataset"
 
 AGNEWS_LABELS = ["World", "Sports", "Business", "Sci/Tech"]
-AGNEWS_LABELS = ["A", "B", "C", "D"]
-CHOICES = {"text": AGNEWS_LABELS, "label": AGNEWS_LABELS}
+AGNEWS_LABELS_LETTERS = ["A", "B", "C", "D"]
+CHOICES = {"text": AGNEWS_LABELS, "label": AGNEWS_LABELS_LETTERS}
 
 
 def agnews_convert_to_multiple_choice(sample):
@@ -184,7 +184,7 @@ def agnews_convert_to_multiple_choice(sample):
     return sample
 
 
-class AGNews(BaseDataset):
+class AgNewsDataset(BaseDataset):
     def __init__(self):
         # Load the AG News dataset
         ag_news_dataset = load_dataset("ag_news", "default")

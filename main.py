@@ -71,9 +71,11 @@ def main():
     #     "gemma2_9b_instruct",
     # ]:
     #     args.model = model
-    for model in ["llama3_8b_instruct", "gemma2_9b_instruct"]:
+    for model in ["llama3_8b_instruct", "gemma2_9b_instruct", "phi3_5"]:
         args.model = model
-        args.kshots = [0, 1, 2, 3]
+        args.dataset = "agnews"
+        args.kshots = [0, 1, 3, 10]
+        args.portions = (0.1, 0.01, 0.01)
         run_experiments(args)
 
 if __name__ == '__main__':
