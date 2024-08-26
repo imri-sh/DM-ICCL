@@ -5,12 +5,26 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import seaborn as sns
 import pandas as pd
-data_mapping_jsons_dir = Path("./results/data_mapping_jsons")
+
+
+
 results_dir = Path("./results")
-# datamaps_dir = Path("./results/datamaps")
-plots_dir = Path('./plots')
+results_dir.mkdir(parents=True, exist_ok=True)
+
+data_mapping_jsons_dir = results_dir / "data_mapping_jsons"
+data_mapping_jsons_dir.mkdir(parents=True, exist_ok=True)
+
 experiment_results_dir = results_dir / "experiments"
 experiment_results_dir.mkdir(exist_ok=True)
+
+plots_dir = Path('./plots')
+plots_dir.mkdir(parents=True, exist_ok=True)
+
+datamap_plots_dir = plots_dir / "datamaps"
+datamap_plots_dir.mkdir(exist_ok=True)
+
+
+
 
 def plot_confusion_matrix(all_labels, all_preds, normalize=False, title='Confusion matrix',
                           cmap='Blues', filepath:Path=None):
@@ -30,9 +44,9 @@ def plot_confusion_matrix(all_labels, all_preds, normalize=False, title='Confusi
     plt.show()
 
 
-def plot_accuracies_over_kshots(k_range, accuracies, title,filepath:Path=None):
-    x = np.array(k_range)
-    plt.bar(x, accuracies, color='blue',width=0.3, label="Examples", align='center')
+def plot_accuracies_over_kshots(k_range, accuracies, title="",filepath:Path=None):
+    # x = np.array(k_range) if with_datamap == False else np.array(k_range) * 3
+    plt.bar(k_range, accuracies, color='blue',width=0.3, label="Examples", align='center')
     plt.legend()
     plt.xticks(k_range)
     plt.xlabel("Number of Kshots", fontweight='bold')

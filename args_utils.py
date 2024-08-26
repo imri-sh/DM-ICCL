@@ -19,13 +19,23 @@ def get_args(parser):
         default=[1.0, 1.0, 1.0],
         help="List of 3 floats between 0 and 1",
     )
-
+    parser.add_argument(
+        "--test_size", type=int, default=500, help="unified test set size"
+    )
+    parser.add_argument(
+        "--train_size", type=int, default=500, help="unified train set size"
+    )
     parser.add_argument(
         "--kshots", type=int, nargs="+", default=[0, 1], help="List of k shots to use"
     )
+    # parser.add_argument(
+    #     "--test_kshots_list", type=int, nargs=3, default=[0, 1,], help="List of k shots to use"
+    # )
+
     parser.add_argument(
         "--datamap_kshots", type=int, nargs=1, default=3, help="List of k shots to use"
     )
+
     parser.add_argument("--datamap", type=bool, default=False)
     parser.add_argument(
         "--models",

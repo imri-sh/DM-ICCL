@@ -1,13 +1,13 @@
 from pathlib import Path
 
+import numpy as np
 import torch
 from tqdm import tqdm
 from transformers import LogitsProcessor
 
 import example_selectors
-from utils import plots_dir, results_dir
+from utils import plots_dir, results_dir, datamap_plots_dir, data_mapping_jsons_dir
 import utils
-from dataset_admin import BaseDataset
 from model_loader import ModelLoader
 from args_utils import  set_seed, prase_dataset_arg
 from datetime import datetime
@@ -37,11 +37,12 @@ class Experiments:
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions)
 
     def get_datamap_path(self, timestamp):
-        return utils.data_mapping_jsons_dir / f"{self.model_name}_{self.dataset.get_name()}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}_{timestamp}.json"
+        return utils.data_mapping_jsons_dir / f"{self.model_name}_{self.dataset.get_name()}_k_{self.args.datamap_kshots[0]}_num_evals_{self.args.num_evals}_{timestamp}.json"
 
     def experiment_acc_over_k(self, title: str="", show_plot:bool=True,timestamp:str=""):
         plot_path, results_path = self.generate_result_paths(timestamp)
         datamap_path = self.get_datamap_path(timestamp)
+        # datamap_path = data_mapping_jsons_dir / "flan-t5-base_ARC-challenge dataset_k_3_num_evals_5_20240826_1843.json"
         train_set, _, _ = self.dataset.get_data()
         example_selector_type = self.args.example_selector_type
         dataset_name = self.dataset.get_name()
@@ -65,9 +66,10 @@ class Experiments:
             accs[k] = accuracy
             print(f"kshot={k}, accuracy={accuracy * 100:.2f}% ")
 
+        k_range = np.array(list(accs.keys())) * 3 if example_selector_type == 'datamap' else np.array(list(accs.keys()))
         if show_plot:
             utils.plot_accuracies_over_kshots(
-                k_range=list(accs.keys()),
+                k_range=k_range,
                 accuracies=list(accs.values()),
                 title=title,
                 filepath=plot_path,

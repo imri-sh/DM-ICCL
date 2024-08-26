@@ -67,7 +67,6 @@ class DatamapExampleSelector(BaseExampleSelector):
               f"\t Dataset Name: {self.dataset_name}\n"
               f"\t Number of Evaluations per example: {self.num_evals}\n"
               f"\t trained with k_shots: {self.datamap_kshots}")
-
         if self.datamap_path is not None and self.datamap_path.exists():
             print(f"The datamap already exists! Loading from {self.datamap_path}")
             self.datamapping_results = utils.load_results(self.datamap_path)
@@ -81,11 +80,11 @@ class DatamapExampleSelector(BaseExampleSelector):
                 num_evals=kwargs['num_evals'],
                 k_shots=kwargs['datamap_kshots'],
                 title=f"{self.model_name}, {self.dataset_name} Data Map",
-                plot_path= utils.plots_dir / f"{self.model_name}_{self.dataset_name}_k_{self.datamap_kshots}_num_evals_{self.num_evals}.png",
+                plot_path= utils.datamap_plots_dir / f"{self.model_name}_{self.dataset_name}_k_{self.datamap_kshots}_num_evals_{self.num_evals}.png",
                 show_plot=True
             )
+            print(f"Datamap created successfully. saving in {self.datamap_path}")
             if self.datamap_path:
-                self.datamap_path.mkdir(parents=True, exist_ok=True)
                 utils.save_results(
                     self.datamapping_results,
                     save_path=self.datamap_path,
@@ -108,14 +107,19 @@ class DatamapExampleSelector(BaseExampleSelector):
         '''
         :param input_variables:
         :param key:
-        :param kshots: [#easy, #ambiguous, #hard] by order
+        :param kshot: [#easy, #ambiguous, #hard] by order
         :return:
         '''
+        if kshot == 0:
+            return []
         examples = []
         pools = [self.easy, self.ambiguous, self.hard]
         for i in range(len(pools)):
             samples = random.sample(list(pools[i]), kshot)
-            examples.append([self.dataset[sample["sample_index"]] for sample in samples])
+            samples = [self.dataset.train[sample["sample_index"]] for sample in samples]
+            for sample in samples:
+                examples.append(sample)
+        # print(f"Number of Examples is {len(examples)}")
         return examples
 
 class ExampleSelectorFactory:

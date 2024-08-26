@@ -13,39 +13,65 @@ from utils import plots_dir, data_mapping_jsons_dir, save_results
 import torch
 from data_mapping import data_mapping
 
-def run_experiments(args, timestamp:str="", show_plot=True, save_results_bool=True):
+
+def run_experiments(args, timestamp: str = "", show_plot:bool=True, save_results_bool:bool=True):
+    # Set the floating-point type for computations (e.g., fp16 for half-precision).
     set_dtype(fp_type="fp16")
+
+    # Initialize the Experiments class with the provided arguments.
     experiments = Experiments(args)
+
+    # Define the path where the experiment results will be saved, using the provided timestamp.
     experiment_results_path = experiment_results_dir / f'experiment_results_{timestamp}.csv'
-    # Initialize an empty DataFrame with datasets and models as columns, and k-shots as rows
+
+    # Create an empty DataFrame to store experiment results.
     experiment_results = pd.DataFrame()
+
+    # Insert a 'kshots' column at the first position of the DataFrame and set it as the index.
     experiment_results.insert(0, 'kshots', args.kshots)
     experiment_results.set_index('kshots', inplace=True)
 
-    num_of_experiments = len(args.models)*len(args.datasets)
+    # Calculate the total number of experiments to be run, based on the number of models and datasets.
+    num_of_experiments = len(args.models) * len(args.datasets)
+
+    # Loop through each combination of models and datasets.
     for i, (model_name, dataset_name) in enumerate(product(args.models, args.datasets)):
-        print(f"Running experiment {i+1}/{num_of_experiments}")
+        # Print the progress of the experiment.
+        print(f"Running experiment {i + 1}/{num_of_experiments}")
+
+        # Set the model for the current experiment.
         experiments.set_model(model_name=model_name)
+
+        # Set the dataset and the portion of data to be used for the current experiment.
         experiments.set_dataset(dataset_name=dataset_name, portions=args.portions)
         print(experiments)
 
-        # Collect accuracy results over k-shots
+        # Collect accuracy results over different k-shot configurations.
         accs = experiments.experiment_acc_over_k(
             title=f"Model: {model_name} \n Dataset: {dataset_name}",
             show_plot=False,
             timestamp=timestamp
         )
 
-        # Populate the DataFrame with accuracy values
+        # Populate the DataFrame with accuracy values for each k-shot configuration.
         for k, acc in accs.items():
             col_name = f"{dataset_name}_{model_name}"
             experiment_results.loc[k, col_name] = acc
+
+        # Print the current state of the experiment results DataFrame.
         print(experiment_results)
+
+    # Save the results to a CSV file if `save_results_bool` is True.
     if save_results_bool:
         experiment_results.to_csv(experiment_results_path, index=True)
+
+    # Generate and save plots if `show_plot` is True.
     if show_plot:
-        plot_experiments(experiment_results_path, plot_path= plots_dir / f'experiment_results_{timestamp}.png')
+        plot_experiments(experiment_results_path, plot_path=plots_dir / f'experiment_results_{timestamp}.png')
+
+    # Return the path to the saved experiment results.
     return experiment_results_path
+
 
 def test_data_mapping(args):
     set_seed(args.seed)
@@ -88,7 +114,8 @@ def main():
     #     test_data_mapping(args)
     # else:
     print("Running evaluation experiments...")
-    run_experiments(args,timestamp=datetime.now().strftime("%Y%m%d_%H%M"))
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    run_experiments(args, timestamp)
 
 if __name__ == '__main__':
     main()
