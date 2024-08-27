@@ -106,7 +106,6 @@ def preprocess_datamaps(models, datasets, portions=None, sizes=None, datamap_ksh
     # timing_df.to_json(timing_df_path_json, orient='records', lines=True)
 
     print(f"Timing information saved to {timing_df_path}")
-    # Return timing DataFrame
 
     return timing_df
 
