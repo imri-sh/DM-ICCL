@@ -7,7 +7,6 @@ import seaborn as sns
 import pandas as pd
 
 
-
 results_dir = Path("./results")
 results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -22,8 +21,6 @@ plots_dir.mkdir(parents=True, exist_ok=True)
 
 datamap_plots_dir = plots_dir / "datamaps"
 datamap_plots_dir.mkdir(exist_ok=True)
-
-
 
 
 def plot_confusion_matrix(all_labels, all_preds, normalize=False, title='Confusion matrix',
@@ -113,7 +110,8 @@ def plot_data_map_by_difficulty(easy, ambiguous, hard, title: str, save_path: Pa
     plt.grid(True)
     plt.show()
 
-def trim_data(dataset, portions):
+
+def trim_data(dataset, portions, sizes):
     """
     Trims the dataset by selecting a portion of each subset (train, validation, test).
 
@@ -124,12 +122,22 @@ def trim_data(dataset, portions):
 
     :return: The trimmed dataset with the specified portions of the train, validation, and test subsets.
     """
-    if portions == [1.0,1.0,1.0]: return dataset
-    # Select portions of each dataset subset
+    if portions == [1.0, 1.0, 1.0]:
+        print("Using all data")
+        return dataset
+    if sizes is not None:
+        print(f"Using fixed sizes: {sizes}")
+        dataset.train = dataset.train.select(range(sizes[0]))
+        dataset.validation = dataset.validation.select(range(sizes[1]))
+        dataset.test = dataset.test.select(range(sizes[2]))
+        return dataset
+
+    print(f"Using portions: {portions}")
     dataset.train = dataset.train.select(range(int(len(dataset.train) * portions[0])))
     dataset.validation = dataset.validation.select(range(int(len(dataset.validation) * portions[1])))
     dataset.test = dataset.test.select(range(int(len(dataset.test) * portions[2])))
     return dataset
+
 
 def save_results(results, save_path: Path = None):
     """ Save the results to file."""

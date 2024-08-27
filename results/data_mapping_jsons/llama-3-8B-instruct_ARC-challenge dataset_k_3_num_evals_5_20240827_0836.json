@@ -1,0 +1,1432 @@
+[
+    {
+        "sample_index": 0,
+        "mean_confidence": 0.28131741285324097,
+        "confidence_std": 0.08343153372446308,
+        "correct_probs": [
+            0.3508055508136749,
+            0.13923050463199615,
+            0.23237846791744232,
+            0.3403420150279999,
+            0.34383052587509155
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 1,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 2,
+        "mean_confidence": 0.9010723948478698,
+        "confidence_std": 0.06760093347990218,
+        "correct_probs": [
+            0.9767603278160095,
+            0.9365342855453491,
+            0.9302381873130798,
+            0.8817493319511414,
+            0.7800798416137695
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 3,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 4,
+        "mean_confidence": 0.4833110451698303,
+        "confidence_std": 0.033987304614474294,
+        "correct_probs": [
+            0.46134334802627563,
+            0.5071154832839966,
+            0.4874727725982666,
+            0.4318807125091553,
+            0.5287429094314575
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 5,
+        "mean_confidence": 0.9121267795562744,
+        "confidence_std": 0.006815515602899464,
+        "correct_probs": [
+            0.9122939109802246,
+            0.9251172542572021,
+            0.9060640335083008,
+            0.9094598293304443,
+            0.9076988697052002
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 6,
+        "mean_confidence": 0.6859190940856934,
+        "confidence_std": 0.07775489137608682,
+        "correct_probs": [
+            0.6016567945480347,
+            0.6819490790367126,
+            0.773823618888855,
+            0.7737926244735718,
+            0.5983733534812927
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 7,
+        "mean_confidence": 0.21878025233745574,
+        "confidence_std": 0.02274754214512186,
+        "correct_probs": [
+            0.24647139012813568,
+            0.1774958074092865,
+            0.21847312152385712,
+            0.2288404107093811,
+            0.22262053191661835
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 8,
+        "mean_confidence": 0.8909747719764709,
+        "confidence_std": 0.05268944853178161,
+        "correct_probs": [
+            0.807672381401062,
+            0.926520049571991,
+            0.946347713470459,
+            0.9231041073799133,
+            0.8512296080589294
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 9,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 10,
+        "mean_confidence": 0.9673516988754273,
+        "confidence_std": 0.007913657271570205,
+        "correct_probs": [
+            0.9724147915840149,
+            0.9753274321556091,
+            0.9714197516441345,
+            0.9643214344978333,
+            0.9532750844955444
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 11,
+        "mean_confidence": 0.5940862387418747,
+        "confidence_std": 0.3089536593801799,
+        "correct_probs": [
+            0.6729878783226013,
+            0.9465966820716858,
+            0.8537079691886902,
+            0.39105692505836487,
+            0.10608173906803131
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 12,
+        "mean_confidence": 0.9611754536628723,
+        "confidence_std": 0.013504164469957475,
+        "correct_probs": [
+            0.9786038398742676,
+            0.9442920684814453,
+            0.9523029327392578,
+            0.9755768775939941,
+            0.9551015496253967
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 13,
+        "mean_confidence": 0.8492339968681335,
+        "confidence_std": 0.042998641620188495,
+        "correct_probs": [
+            0.9219321608543396,
+            0.8747162222862244,
+            0.8245325088500977,
+            0.8121001720428467,
+            0.8128889203071594
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 14,
+        "mean_confidence": 0.9796593308448791,
+        "confidence_std": 0.017564390088038135,
+        "correct_probs": [
+            0.9719226360321045,
+            1.0,
+            0.9556862711906433,
+            0.970687747001648,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 15,
+        "mean_confidence": 0.6848462998867035,
+        "confidence_std": 0.17505452854669645,
+        "correct_probs": [
+            0.4496765434741974,
+            0.8645539879798889,
+            0.8661015033721924,
+            0.7334292531013489,
+            0.5104702115058899
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 16,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 17,
+        "mean_confidence": 0.8124892950057984,
+        "confidence_std": 0.033719077090188614,
+        "correct_probs": [
+            0.7611271142959595,
+            0.8018060326576233,
+            0.8444209694862366,
+            0.8545612096786499,
+            0.8005311489105225
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 18,
+        "mean_confidence": 0.6683759450912475,
+        "confidence_std": 0.09226468169715601,
+        "correct_probs": [
+            0.8092876672744751,
+            0.5836790800094604,
+            0.5650837421417236,
+            0.6485742926597595,
+            0.7352549433708191
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 19,
+        "mean_confidence": 0.8667242765426636,
+        "confidence_std": 0.059731731480255464,
+        "correct_probs": [
+            0.9365176558494568,
+            0.9361850023269653,
+            0.82973313331604,
+            0.7877873182296753,
+            0.8433982729911804
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 21,
+        "mean_confidence": 0.9938646197319031,
+        "confidence_std": 0.007965829530494536,
+        "correct_probs": [
+            1.0,
+            0.9888418912887573,
+            0.9804812073707581,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 22,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 23,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 24,
+        "mean_confidence": 0.9444176077842712,
+        "confidence_std": 0.009732671970464443,
+        "correct_probs": [
+            0.9301601052284241,
+            0.956215500831604,
+            0.9361149072647095,
+            0.9512666463851929,
+            0.9483308792114258
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 25,
+        "mean_confidence": 0.9404435992240906,
+        "confidence_std": 0.022495432496095112,
+        "correct_probs": [
+            0.9206586480140686,
+            0.9550468325614929,
+            0.9065616726875305,
+            0.9626730680465698,
+            0.957277774810791
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 26,
+        "mean_confidence": 0.8132476210594177,
+        "confidence_std": 0.016394734282384686,
+        "correct_probs": [
+            0.7870708107948303,
+            0.8172016739845276,
+            0.8311178684234619,
+            0.8028887510299683,
+            0.8279590010643005
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 27,
+        "mean_confidence": 0.9817993998527527,
+        "confidence_std": 0.01994727935206809,
+        "correct_probs": [
+            0.9454063177108765,
+            1.0,
+            1.0,
+            0.9806796312332153,
+            0.9829110503196716
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 28,
+        "mean_confidence": 0.6458881855010986,
+        "confidence_std": 0.23721841599295068,
+        "correct_probs": [
+            0.5880818963050842,
+            0.6724632382392883,
+            0.2610715627670288,
+            0.7078242301940918,
+            1.0
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 29,
+        "mean_confidence": 0.699666965007782,
+        "confidence_std": 0.059933665938669965,
+        "correct_probs": [
+            0.6682392358779907,
+            0.8064465522766113,
+            0.7237323522567749,
+            0.6549383997917175,
+            0.6449782848358154
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 30,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 31,
+        "mean_confidence": 0.4019726514816284,
+        "confidence_std": 0.042446947031261215,
+        "correct_probs": [
+            0.3596145212650299,
+            0.4305683374404907,
+            0.4277661442756653,
+            0.3427635431289673,
+            0.4491507112979889
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 32,
+        "mean_confidence": 0.9973281264305115,
+        "confidence_std": 0.005343747138977051,
+        "correct_probs": [
+            1.0,
+            0.9866406321525574,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 33,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 34,
+        "mean_confidence": 0.5065564334392547,
+        "confidence_std": 0.05729746831707199,
+        "correct_probs": [
+            0.4540470838546753,
+            0.5559880137443542,
+            0.5108954906463623,
+            0.5807411074638367,
+            0.4311104714870453
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 35,
+        "mean_confidence": 0.9807823419570922,
+        "confidence_std": 0.004224283493208235,
+        "correct_probs": [
+            0.9752018451690674,
+            0.9845753908157349,
+            0.9787126779556274,
+            0.9787126779556274,
+            0.9867091178894043
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 36,
+        "mean_confidence": 0.5887479066848755,
+        "confidence_std": 0.0868189637336277,
+        "correct_probs": [
+            0.6868892908096313,
+            0.45284152030944824,
+            0.6043604612350464,
+            0.5323842763900757,
+            0.6672639846801758
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 37,
+        "mean_confidence": 0.9417272448539734,
+        "confidence_std": 0.017214139829475006,
+        "correct_probs": [
+            0.9622735381126404,
+            0.9252763390541077,
+            0.946000874042511,
+            0.9567204117774963,
+            0.9183650612831116
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 38,
+        "mean_confidence": 0.9856064796447754,
+        "confidence_std": 0.012660785668644562,
+        "correct_probs": [
+            0.9733760356903076,
+            1.0,
+            0.9844164252281189,
+            1.0,
+            0.9702399373054504
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 39,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 40,
+        "mean_confidence": 0.9923874139785767,
+        "confidence_std": 0.009882915737432666,
+        "correct_probs": [
+            1.0,
+            0.986151397228241,
+            0.9757856726646423,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 41,
+        "mean_confidence": 0.7563034415245056,
+        "confidence_std": 0.044571323338738776,
+        "correct_probs": [
+            0.8128396272659302,
+            0.7268571257591248,
+            0.8057115077972412,
+            0.7339047789573669,
+            0.702204167842865
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 42,
+        "mean_confidence": 0.7704043745994568,
+        "confidence_std": 0.04913913503350157,
+        "correct_probs": [
+            0.8224071264266968,
+            0.7667672634124756,
+            0.7730513215065002,
+            0.8083315491676331,
+            0.6814646124839783
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 43,
+        "mean_confidence": 0.8982465386390686,
+        "confidence_std": 0.035208116446058035,
+        "correct_probs": [
+            0.9021339416503906,
+            0.8400645852088928,
+            0.9243578910827637,
+            0.883022129535675,
+            0.9416541457176208
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 44,
+        "mean_confidence": 0.7470664620399475,
+        "confidence_std": 0.08022325884219522,
+        "correct_probs": [
+            0.7286400198936462,
+            0.7924278378486633,
+            0.8130189776420593,
+            0.5978659987449646,
+            0.803379476070404
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 45,
+        "mean_confidence": 0.28361176550388334,
+        "confidence_std": 0.04726238735111768,
+        "correct_probs": [
+            0.21147088706493378,
+            0.3543385863304138,
+            0.2944588363170624,
+            0.2588961720466614,
+            0.29889434576034546
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 46,
+        "mean_confidence": 0.5379571676254272,
+        "confidence_std": 0.07297628443031726,
+        "correct_probs": [
+            0.5445762276649475,
+            0.4205469489097595,
+            0.638427197933197,
+            0.5795267224311829,
+            0.5067087411880493
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 47,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 48,
+        "mean_confidence": 0.22339691519737243,
+        "confidence_std": 0.0220806339903878,
+        "correct_probs": [
+            0.2121664583683014,
+            0.24664124846458435,
+            0.1882789433002472,
+            0.24659323692321777,
+            0.22330468893051147
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 49,
+        "mean_confidence": 0.8968470811843872,
+        "confidence_std": 0.047715208428758114,
+        "correct_probs": [
+            0.9329533576965332,
+            0.9426250457763672,
+            0.8174249529838562,
+            0.8666892647743225,
+            0.9245427846908569
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 50,
+        "mean_confidence": 0.4064472794532776,
+        "confidence_std": 0.08492417781995883,
+        "correct_probs": [
+            0.4931240975856781,
+            0.3182343542575836,
+            0.4545154869556427,
+            0.47638267278671265,
+            0.2899797856807709
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 51,
+        "mean_confidence": 0.9568716168403626,
+        "confidence_std": 0.013146512344495225,
+        "correct_probs": [
+            0.9688132405281067,
+            0.9678993225097656,
+            0.9564480781555176,
+            0.9587441682815552,
+            0.9324532747268677
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 52,
+        "mean_confidence": 0.024654144048690797,
+        "confidence_std": 0.014183623872306095,
+        "correct_probs": [
+            0.03505425527691841,
+            0.020042352378368378,
+            0.0,
+            0.04081975668668747,
+            0.02735435590147972
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 53,
+        "mean_confidence": 0.1686512142419815,
+        "confidence_std": 0.026717848806337312,
+        "correct_probs": [
+            0.16174249351024628,
+            0.15584881603717804,
+            0.21609628200531006,
+            0.1737837791442871,
+            0.13578470051288605
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 54,
+        "mean_confidence": 0.626688277721405,
+        "confidence_std": 0.08948100022502056,
+        "correct_probs": [
+            0.5035986304283142,
+            0.6359038949012756,
+            0.653651773929596,
+            0.569409966468811,
+            0.7708771228790283
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 55,
+        "mean_confidence": 0.9870784759521485,
+        "confidence_std": 0.013594496372002508,
+        "correct_probs": [
+            0.9628192782402039,
+            1.0,
+            1.0,
+            0.985863983631134,
+            0.9867091178894043
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 56,
+        "mean_confidence": 0.992564070224762,
+        "confidence_std": 0.014871859550476076,
+        "correct_probs": [
+            1.0,
+            0.9628203511238098,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 57,
+        "mean_confidence": 0.8669462203979492,
+        "confidence_std": 0.039413240783473295,
+        "correct_probs": [
+            0.8484235405921936,
+            0.8773502707481384,
+            0.8780817985534668,
+            0.9253841042518616,
+            0.8054913878440857
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 58,
+        "mean_confidence": 0.9352730989456177,
+        "confidence_std": 0.019523983631684196,
+        "correct_probs": [
+            0.9468263983726501,
+            0.9455336332321167,
+            0.9442039132118225,
+            0.9435100555419922,
+            0.8962914943695068
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 59,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 60,
+        "mean_confidence": 0.936846935749054,
+        "confidence_std": 0.014452363940163478,
+        "correct_probs": [
+            0.9390180706977844,
+            0.9259050488471985,
+            0.9163864254951477,
+            0.9575473666191101,
+            0.945377767086029
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 61,
+        "mean_confidence": 0.973788857460022,
+        "confidence_std": 0.014449855824624462,
+        "correct_probs": [
+            0.9554756283760071,
+            0.9716891646385193,
+            0.9713227152824402,
+            0.9704567790031433,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 62,
+        "mean_confidence": 0.3762232631444931,
+        "confidence_std": 0.08734918958964316,
+        "correct_probs": [
+            0.4651896059513092,
+            0.45093923807144165,
+            0.22335870563983917,
+            0.3955715298652649,
+            0.3460572361946106
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 63,
+        "mean_confidence": 0.9826906561851502,
+        "confidence_std": 0.022754810011160958,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            0.9436536431312561,
+            0.9697996377944946
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 64,
+        "mean_confidence": 0.9625075936317444,
+        "confidence_std": 0.01072617504819249,
+        "correct_probs": [
+            0.9570800065994263,
+            0.9626220464706421,
+            0.9518033266067505,
+            0.9828232526779175,
+            0.9582093358039856
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 65,
+        "mean_confidence": 0.9728558301925659,
+        "confidence_std": 0.006499825905683904,
+        "correct_probs": [
+            0.9730644822120667,
+            0.9773707389831543,
+            0.9613702297210693,
+            0.9719924926757812,
+            0.9804812073707581
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 66,
+        "mean_confidence": 0.7344704270362854,
+        "confidence_std": 0.06153077889635265,
+        "correct_probs": [
+            0.7934389114379883,
+            0.6790369749069214,
+            0.6832544207572937,
+            0.6926594972610474,
+            0.8239623308181763
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 67,
+        "mean_confidence": 0.9317831993103027,
+        "confidence_std": 0.03938426849751785,
+        "correct_probs": [
+            0.9566342234611511,
+            0.9346405267715454,
+            0.9544214010238647,
+            0.9583302736282349,
+            0.8548895716667175
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 68,
+        "mean_confidence": 0.7650215864181519,
+        "confidence_std": 0.06310357211586742,
+        "correct_probs": [
+            0.7916774749755859,
+            0.8345086574554443,
+            0.6832190752029419,
+            0.6963012218475342,
+            0.8194015026092529
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 69,
+        "mean_confidence": 0.9088375687599182,
+        "confidence_std": 0.022896694900953144,
+        "correct_probs": [
+            0.9038325548171997,
+            0.9186090230941772,
+            0.9159423112869263,
+            0.9373970627784729,
+            0.8684068918228149
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 70,
+        "mean_confidence": 0.11852249503135681,
+        "confidence_std": 0.06282555249864955,
+        "correct_probs": [
+            0.04217815399169922,
+            0.04237742722034454,
+            0.16158920526504517,
+            0.18479488790035248,
+            0.16167280077934265
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 71,
+        "mean_confidence": 0.9392577052116394,
+        "confidence_std": 0.01565869727115701,
+        "correct_probs": [
+            0.9402053356170654,
+            0.9162946343421936,
+            0.9276920557022095,
+            0.9563348889350891,
+            0.9557616114616394
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 72,
+        "mean_confidence": 0.3496314823627472,
+        "confidence_std": 0.06260846582723024,
+        "correct_probs": [
+            0.4437466263771057,
+            0.32032498717308044,
+            0.28444164991378784,
+            0.40289175510406494,
+            0.296752393245697
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 73,
+        "mean_confidence": 0.9505111813545227,
+        "confidence_std": 0.021123808605587952,
+        "correct_probs": [
+            0.9450544118881226,
+            0.9703898429870605,
+            0.9561323523521423,
+            0.9124389886856079,
+            0.9685403108596802
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 74,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 75,
+        "mean_confidence": 0.7990988969802857,
+        "confidence_std": 0.04273988282139155,
+        "correct_probs": [
+            0.8472399115562439,
+            0.8479854464530945,
+            0.7502391338348389,
+            0.7540544271469116,
+            0.7959755659103394
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 76,
+        "mean_confidence": 0.06669535264372825,
+        "confidence_std": 0.008368394886385034,
+        "correct_probs": [
+            0.0791725367307663,
+            0.0605514794588089,
+            0.0635422021150589,
+            0.07352322340011597,
+            0.05668732151389122
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 77,
+        "mean_confidence": 0.9713080763816834,
+        "confidence_std": 0.017955418383091493,
+        "correct_probs": [
+            0.9530424475669861,
+            1.0,
+            0.9516240358352661,
+            0.9794591069221497,
+            0.9724147915840149
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 78,
+        "mean_confidence": 0.6280978322029114,
+        "confidence_std": 0.0649230083421982,
+        "correct_probs": [
+            0.6948550343513489,
+            0.531209409236908,
+            0.6859495043754578,
+            0.5724042057991028,
+            0.6560710072517395
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 79,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 80,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 81,
+        "mean_confidence": 0.8822037935256958,
+        "confidence_std": 0.0301104630358751,
+        "correct_probs": [
+            0.851457417011261,
+            0.9050929546356201,
+            0.8399413824081421,
+            0.9105686545372009,
+            0.9039585590362549
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 82,
+        "mean_confidence": 0.9493534088134765,
+        "confidence_std": 0.019594844576795393,
+        "correct_probs": [
+            0.9699376821517944,
+            0.9204162955284119,
+            0.9379152655601501,
+            0.9721339344978333,
+            0.9463638663291931
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 83,
+        "mean_confidence": 0.9694872379302979,
+        "confidence_std": 0.00797791062532495,
+        "correct_probs": [
+            0.9546810984611511,
+            0.9696866273880005,
+            0.9738064408302307,
+            0.9709295630455017,
+            0.9783324599266052
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 84,
+        "mean_confidence": 0.9954045295715332,
+        "confidence_std": 0.009190940856933593,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.977022647857666
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 85,
+        "mean_confidence": 0.964293360710144,
+        "confidence_std": 0.02104579019874894,
+        "correct_probs": [
+            0.9694786667823792,
+            0.9587442874908447,
+            0.9352768063545227,
+            0.9579670429229736,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 86,
+        "mean_confidence": 0.9961161375045776,
+        "confidence_std": 0.007767724990844727,
+        "correct_probs": [
+            1.0,
+            1.0,
+            0.9805806875228882,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 87,
+        "mean_confidence": 0.9776943564414978,
+        "confidence_std": 0.013110469858251893,
+        "correct_probs": [
+            0.9827350974082947,
+            0.9660706520080566,
+            0.976068377494812,
+            1.0,
+            0.9635976552963257
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 88,
+        "mean_confidence": 0.9588856101036072,
+        "confidence_std": 0.014191904287234328,
+        "correct_probs": [
+            0.9369036555290222,
+            0.9750755429267883,
+            0.9736446738243103,
+            0.9530425667762756,
+            0.9557616114616394
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 89,
+        "mean_confidence": 0.958919632434845,
+        "confidence_std": 0.018737629554348528,
+        "correct_probs": [
+            0.931348443031311,
+            0.9416541457176208,
+            0.9724147915840149,
+            0.9780517220497131,
+            0.9711290597915649
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 90,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 91,
+        "mean_confidence": 0.9194722771644592,
+        "confidence_std": 0.004535745730726123,
+        "correct_probs": [
+            0.9190949201583862,
+            0.9278154969215393,
+            0.9180572032928467,
+            0.9183939695358276,
+            0.9139997959136963
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 92,
+        "mean_confidence": 0.05444829612970352,
+        "confidence_std": 0.008278601751431731,
+        "correct_probs": [
+            0.06341217458248138,
+            0.0638251081109047,
+            0.046204883605241776,
+            0.04413329437375069,
+            0.05466601997613907
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 93,
+        "mean_confidence": 0.0234610628336668,
+        "confidence_std": 0.006901080496095455,
+        "correct_probs": [
+            0.016235824674367905,
+            0.03359207510948181,
+            0.02931223064661026,
+            0.016769055277109146,
+            0.021396128460764885
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 94,
+        "mean_confidence": 0.7413708925247192,
+        "confidence_std": 0.04725208182127242,
+        "correct_probs": [
+            0.8026588559150696,
+            0.6577255725860596,
+            0.7432727813720703,
+            0.7416434288024902,
+            0.7615538239479065
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 95,
+        "mean_confidence": 0.9436644911766052,
+        "confidence_std": 0.02131223846810785,
+        "correct_probs": [
+            0.9740425944328308,
+            0.9516240358352661,
+            0.9089944362640381,
+            0.9356607794761658,
+            0.9480006098747253
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 96,
+        "mean_confidence": 0.9104544758796692,
+        "confidence_std": 0.007758650342372741,
+        "correct_probs": [
+            0.9081845283508301,
+            0.8981727361679077,
+            0.9219217896461487,
+            0.9140863418579102,
+            0.9099069833755493
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 97,
+        "mean_confidence": 0.9785853266716004,
+        "confidence_std": 0.003196891112972728,
+        "correct_probs": [
+            0.9771392941474915,
+            0.9739106297492981,
+            0.9828232526779175,
+            0.9814534187316895,
+            0.9776000380516052
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 98,
+        "mean_confidence": 0.9866257786750794,
+        "confidence_std": 0.01639245014201332,
+        "correct_probs": [
+            1.0,
+            1.0,
+            0.9675740599632263,
+            0.9655548334121704,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 99,
+        "mean_confidence": 0.9267829537391663,
+        "confidence_std": 0.03980986987960313,
+        "correct_probs": [
+            0.9481119513511658,
+            0.9122164249420166,
+            0.8556770086288452,
+            0.9670454859733582,
+            0.9508638978004456
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 100,
+        "mean_confidence": 0.5370500147342682,
+        "confidence_std": 0.051012672198930104,
+        "correct_probs": [
+            0.4745754897594452,
+            0.4853362441062927,
+            0.608004629611969,
+            0.5739139914512634,
+            0.5434197187423706
+        ],
+        "difficulty_level": "ambiguous"
+    },
+    {
+        "sample_index": 101,
+        "mean_confidence": 0.3084633767604828,
+        "confidence_std": 0.0645226441890697,
+        "correct_probs": [
+            0.3135424554347992,
+            0.3248818516731262,
+            0.417514830827713,
+            0.2504948079586029,
+            0.2358829379081726
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 102,
+        "mean_confidence": 0.2565794140100479,
+        "confidence_std": 0.04795095827539501,
+        "correct_probs": [
+            0.20560584962368011,
+            0.2805062234401703,
+            0.23044241964817047,
+            0.3389757573604584,
+            0.22736681997776031
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 103,
+        "mean_confidence": 0.2311782568693161,
+        "confidence_std": 0.09568539094021977,
+        "correct_probs": [
+            0.24014873802661896,
+            0.3485412895679474,
+            0.31496360898017883,
+            0.16372843086719513,
+            0.0885092169046402
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 104,
+        "mean_confidence": 0.980562162399292,
+        "confidence_std": 0.012469465991565221,
+        "correct_probs": [
+            0.987695574760437,
+            1.0,
+            0.963821291923523,
+            0.9724730253219604,
+            0.9788209199905396
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 105,
+        "mean_confidence": 0.9146721601486206,
+        "confidence_std": 0.047052769557514425,
+        "correct_probs": [
+            0.9402356743812561,
+            0.9493178129196167,
+            0.8662749528884888,
+            0.850439727306366,
+            0.9670926332473755
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 106,
+        "mean_confidence": 0.9798152327537537,
+        "confidence_std": 0.011451733308731758,
+        "correct_probs": [
+            0.9666896462440491,
+            0.9815480709075928,
+            0.9795636534690857,
+            0.9712747931480408,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 107,
+        "mean_confidence": 0.32627742886543276,
+        "confidence_std": 0.04113863820394206,
+        "correct_probs": [
+            0.3853546380996704,
+            0.2972925901412964,
+            0.3618485927581787,
+            0.3122943043708801,
+            0.27459701895713806
+        ],
+        "difficulty_level": "hard"
+    },
+    {
+        "sample_index": 108,
+        "mean_confidence": 1.0,
+        "confidence_std": 0.0,
+        "correct_probs": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 109,
+        "mean_confidence": 0.9918666362762452,
+        "confidence_std": 0.009962159805986255,
+        "correct_probs": [
+            0.9794591069221497,
+            1.0,
+            1.0,
+            0.9798740744590759,
+            1.0
+        ],
+        "difficulty_level": "easy"
+    },
+    {
+        "sample_index": 110,
+        "mean_confidence": 0.9010414361953736,
+        "confidence_std": 0.04624484640149651,
+        "correct_probs": [
+            0.9316116571426392,
+            0.9277132749557495,
+            0.8710557222366333,
+            0.9497687220573425,
+            0.8250578045845032
+        ],
+        "difficulty_level": "easy"
+    }
+]

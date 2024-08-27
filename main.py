@@ -22,7 +22,10 @@ def run_experiments(args, timestamp: str = "", show_plot:bool=True, save_results
     experiments = Experiments(args)
 
     # Define the path where the experiment results will be saved, using the provided timestamp.
-    experiment_results_path = experiment_results_dir / f'experiment_results_{timestamp}.csv'
+    experiment_results_path = (
+        experiment_results_dir
+        / f"experiment_results_{args.example_selector_type}_{timestamp}.csv"
+    )
 
     # Create an empty DataFrame to store experiment results.
     experiment_results = pd.DataFrame()
@@ -43,7 +46,9 @@ def run_experiments(args, timestamp: str = "", show_plot:bool=True, save_results
         experiments.set_model(model_name=model_name)
 
         # Set the dataset and the portion of data to be used for the current experiment.
-        experiments.set_dataset(dataset_name=dataset_name, portions=args.portions)
+        experiments.set_dataset(
+            dataset_name=dataset_name, portions=args.portions, sizes=args.sizes
+        )
         print(experiments)
 
         # Collect accuracy results over different k-shot configurations.
@@ -107,15 +112,24 @@ def test_data_mapping(args):
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
+    args.models = "llama3_8b_instruct,llama_3_8B"
+    args.datasets = "arc"
+    args.kshots = [0, 1]
     args.models = args.models.split(',')
     args.datasets = args.datasets.split(',')
-    # if args.datamap:
-    #     print("Performing data mapping...")
-    #     test_data_mapping(args)
-    # else:
-    print("Running evaluation experiments...")
+    args.portions = None
+    args.sizes = [1119, 299, 1172]
+    # args.sizes = [15, 15, 15]
+    args.datamap_kshots = [3]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    run_experiments(args, timestamp)
+    for selector in ["datamap", "random", "similarity"]:
+        if selector != "datamap":
+            args.kshots = [0, 3]
+        else:
+            args.kshots = [0, 1]
+        args.example_selector_type = selector
+        print(f"Running evaluation experiments with selector {selector}...")
+        run_experiments(args, timestamp)
 
 if __name__ == '__main__':
     main()

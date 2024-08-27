@@ -33,8 +33,8 @@ class Experiments:
     def set_model(self, model_name: str):
         self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(model_name, device=self.device)
 
-    def set_dataset(self, dataset_name: str, portions=(1.0,1.0,1.0)):
-        self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions)
+    def set_dataset(self, dataset_name: str, portions=None, sizes=None):
+        self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions, sizes)
 
     def get_datamap_path(self, timestamp):
         return utils.data_mapping_jsons_dir / f"{self.model_name}_{self.dataset.get_name()}_k_{self.args.datamap_kshots[0]}_num_evals_{self.args.num_evals}_{timestamp}.json"
@@ -159,15 +159,28 @@ class Experiments:
                     f"  seed={self.args.seed}\n"
                     f"  kshots={self.args.kshots}"
                     f")")
-
-        portions = {"train": f"{len(self.dataset.train)} ({int(self.args.portions[0]*100)}%)",
-                    "validation": f"{len(self.dataset.validation)} ({int(self.args.portions[1]*100)}%)",
-                    "test": f"{len(self.dataset.test)} ({int(self.args.portions[2]*100)}%)"}
-        return (f"Experiments(\n"
-                f"  model_name='{self.model_name}',\n"
-                f"  device='{self.device}',\n"
-                f"  dataset_sizes={portions},\n"
-                f"  dataset='{self.dataset.get_name()}',\n"
-                f"  seed={self.args.seed}\n"
-                f"  kshots={self.args.kshots}"
-                f")")
+        dataset_sizes = None
+        if self.args.portions:
+            dataset_sizes = {
+                "train": f"{len(self.dataset.train)} ({int(self.args.portions[0]*100)}%)",
+                "validation": f"{len(self.dataset.validation)} ({int(self.args.portions[1]*100)}%)",
+                "test": f"{len(self.dataset.test)} ({int(self.args.portions[2]*100)}%)",
+            }
+        elif self.args.sizes:
+            dataset_sizes = {
+                "train": f"{len(self.dataset.train)} ({self.args.sizes[0]})",
+                "validation": f"{len(self.dataset.validation)} ({self.args.sizes[1]})",
+                "test": f"{len(self.dataset.test)} ({self.args.sizes[2]})",
+            }
+        else:
+            raise ValueError("Either portions or sizes should be provided")
+        return (
+            f"Experiments(\n"
+            f"  model_name='{self.model_name}',\n"
+            f"  device='{self.device}',\n"
+            f"  dataset_sizes={dataset_sizes},\n"
+            f"  dataset='{self.dataset.get_name()}',\n"
+            f"  seed={self.args.seed}\n"
+            f"  kshots={self.args.kshots}"
+            f")"
+        )
