@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import utils
+from preprocces import preprocess_datamaps
 from utils import *
 from args_utils import get_args, prase_dataset_arg, set_seed
 from experiments import Experiments
@@ -105,31 +107,43 @@ def test_data_mapping(args):
         save_path = data_mapping_jsons_dir / f"{model_name}_{dataset.get_name()}_k_{k}_num_evals_{num_evals}_{timestamp}.json"
         save_results(results, save_path=save_path)
         mean_confidences.append(mean_confidence)
-
     for i, k in enumerate(args.kshots):
         print(f"k={k}, mean confidence={mean_confidences[i]*100:.2f}%")
+
+
 
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
-    args.models = "llama3_8b_instruct,llama_3_8B"
-    args.datasets = "arc"
+    # args.models = "llama3_8b_instruct,llama_3_8B"
+    args.models = "flan_t5_base"
+    args.datasets = "arc,agnews"
     args.kshots = [0, 1]
     args.models = args.models.split(',')
     args.datasets = args.datasets.split(',')
     args.portions = None
-    args.sizes = [1119, 299, 1172]
-    # args.sizes = [15, 15, 15]
-    args.datamap_kshots = [3]
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    for selector in ["datamap", "random", "similarity"]:
-        if selector != "datamap":
-            args.kshots = [0, 3]
-        else:
-            args.kshots = [0, 1]
-        args.example_selector_type = selector
-        print(f"Running evaluation experiments with selector {selector}...")
-        run_experiments(args, timestamp)
+    # args.sizes = [1119, 299, 1172]
+    args.sizes = [15, 15, 15]
+
+    timing_info = preprocess_datamaps(models=args.models,
+                        datasets=args.datasets,
+                        portions=args.portions,
+                        sizes=args.sizes,
+                        datamap_kshots=args.datamap_kshots,
+                        num_evals=args.num_evals,
+                        seed=args.seed)
+    print(timing_info)
+
+    # args.datamap_kshots = [3]
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    # for selector in ["datamap", "random", "similarity"]:
+    #     if selector != "datamap":
+    #         args.kshots = [0, 3]
+    #     else:
+    #         args.kshots = [0, 1]
+    #     args.example_selector_type = selector
+    #     print(f"Running evaluation experiments with selector {selector}...")
+    #     run_experiments(args, timestamp)
 
 if __name__ == '__main__':
     main()

@@ -28,12 +28,13 @@ def get_args(parser):
     parser.add_argument(
         "--kshots", type=int, nargs="+", default=[0, 1], help="List of k shots to use"
     )
+
     # parser.add_argument(
     #     "--test_kshots_list", type=int, nargs=3, default=[0, 1,], help="List of k shots to use"
     # )
 
     parser.add_argument(
-        "--datamap_kshots", type=int, nargs=1, default=3, help="List of k shots to use"
+        "--datamap_kshots", type=int, nargs=1, default=3, help="kshot for data-mapping"
     )
 
     parser.add_argument("--datamap", type=bool, default=False)
