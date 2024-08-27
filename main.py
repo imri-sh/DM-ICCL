@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 import utils
-from preprocces import preprocess_datamaps
+from preprocess import preprocess_datamaps
 from utils import *
 from args_utils import get_args, prase_dataset_arg, set_seed
 from experiments import Experiments
