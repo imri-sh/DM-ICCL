@@ -18,17 +18,18 @@ import pandas as pd
 
 
 def preprocess_datamaps(models, datasets, portions=None, sizes=None, datamap_kshots=None, num_evals: int = 5,
-                        seed: int = 42, save_dir=None):
+                        seed: int = 42, save_and_show_plots=True):
     set_dtype(fp_type="fp16")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     set_seed(seed=seed)
 
     num_of_datamaps = len(models) * len(datasets)
-    pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir = get_dir_paths()
+    pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir = utils.get_datamaps_dir_paths()
     # List to accumulate timing information
     timing_data = []
 
     # Track total time for the function
+
     total_start_time = time.time()
 
     for i, (model_name, dataset_name) in enumerate(product(models, datasets)):
@@ -60,7 +61,7 @@ def preprocess_datamaps(models, datasets, portions=None, sizes=None, datamap_ksh
                 k_shots=datamap_kshots,
                 title=f"{model_name}, {dataset_name} Data Map",
                 plot_path=pp_datamaps_plots_dir /  f"dm_{model_name}_{dataset_name}_train_size_{train_size}_k_{datamap_kshots}_num_evals_{num_evals}.png",
-                show_plot=False
+                show_plot=save_and_show_plots
             )
 
             # End time for this datamap
@@ -81,9 +82,9 @@ def preprocess_datamaps(models, datasets, portions=None, sizes=None, datamap_ksh
             })
 
         else:
-            print("---------------------------------------------------------------")
+            print("---------------------------------------------------------------------------------")
             print(f"Datamap already exists in {datamap_path}. Skipping...")
-            print("---------------------------------------------------------------")
+            print("---------------------------------------------------------------------------------")
 
     # End time for the entire function
     total_end_time = time.time()
@@ -106,15 +107,9 @@ def preprocess_datamaps(models, datasets, portions=None, sizes=None, datamap_ksh
 
     print(f"Timing information saved to {timing_df_path}")
     # Return timing DataFrame
+
     return timing_df
 
 
 # Example usage:
 
-def get_dir_paths():
-    pp_datamaps_dir = Path("./pp_datamaps")
-    pp_datamaps_results_dir =pp_datamaps_dir / "results"
-    pp_datamaps_plots_dir =pp_datamaps_dir / "plots"
-    pp_datamaps_results_dir.mkdir(parents=True, exist_ok=True)
-    pp_datamaps_plots_dir.mkdir(parents=True, exist_ok=True)
-    return pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir

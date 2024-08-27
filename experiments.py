@@ -34,16 +34,16 @@ class Experiments:
         self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(model_name, device=self.device)
 
     def set_dataset(self, dataset_name: str, portions=None, sizes=None):
+        self.dataset_name = dataset_name
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions, sizes)
-
-    def get_datamap_path(self, timestamp):
-        return utils.data_mapping_jsons_dir / f"{self.model_name}_{self.dataset.get_name()}_k_{self.args.datamap_kshots[0]}_num_evals_{self.args.num_evals}_{timestamp}.json"
 
     def experiment_acc_over_k(self, title: str="", show_plot:bool=True,timestamp:str=""):
         plot_path, results_path = self.generate_result_paths(timestamp)
-        datamap_path = self.get_datamap_path(timestamp)
+        pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir = utils.get_datamaps_dir_paths()
         # datamap_path = data_mapping_jsons_dir / "flan-t5-base_ARC-challenge dataset_k_3_num_evals_5_20240826_1843.json"
         train_set, _, _ = self.dataset.get_data()
+        datamap_results_path = pp_datamaps_results_dir / f"dm_{self.model_name}_{self.dataset_name}_train_size_{len(train_set)}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}.json"
+        datamap_plot_path = pp_datamaps_plots_dir / f"dm_{self.model_name}_{self.dataset_name}_train_size_{len(train_set)}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}.png"
         example_selector_type = self.args.example_selector_type
         dataset_name = self.dataset.get_name()
         ks = self.args.kshots
@@ -56,7 +56,8 @@ class Experiments:
                  'examples': train_set,
                  'num_evals':self.args.num_evals,
                  'datamap_kshots': self.args.datamap_kshots,
-                 'datamap_path': datamap_path,
+                 'datamap_results_path': datamap_results_path,
+                 'datamap_plot_path': datamap_plot_path,
                  'key':'question'}
         example_selector = ExampleSelectorFactory.get_example_selector(example_selector_type=example_selector_type,
                                                                        **kwargs)
@@ -181,6 +182,4 @@ class Experiments:
             f"  dataset_sizes={dataset_sizes},\n"
             f"  dataset='{self.dataset.get_name()}',\n"
             f"  seed={self.args.seed}\n"
-            f"  kshots={self.args.kshots}"
-            f")"
-        )
+            f"  kshots={self.args.kshots}")

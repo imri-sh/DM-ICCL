@@ -173,3 +173,12 @@ def plot_experiments(experiments_results_path, plot_path):
     plt.savefig(plot_path)
     # Show plot
     plt.show()
+
+
+def get_datamaps_dir_paths():
+    pp_datamaps_dir = Path("./pp_datamaps")
+    pp_datamaps_results_dir =pp_datamaps_dir / "results"
+    pp_datamaps_plots_dir =pp_datamaps_dir / "plots"
+    pp_datamaps_results_dir.mkdir(parents=True, exist_ok=True)
+    pp_datamaps_plots_dir.mkdir(parents=True, exist_ok=True)
+    return pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir

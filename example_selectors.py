@@ -5,7 +5,8 @@ from typing import Dict, List, Any
 from sentence_transformers import SentenceTransformer, util
 
 import utils
-from data_mapping import data_mapping, assign_difficulty
+from data_mapping import data_mapping, assign_difficulty, device
+
 
 class BaseExampleSelector(ABC):
     """Interface for selecting examples to include in prompts."""
@@ -57,16 +58,21 @@ class SimilarityBasedExampleSelector(BaseExampleSelector):
 class DatamapExampleSelector(BaseExampleSelector):
     def __init__(self, **kwargs):
         self.dataset = kwargs['dataset']
-        self.datamap_path = kwargs['datamap_path']
-        self.dataset_name = kwargs['dataset'].get_name()
-        self.model_name =  kwargs['model_name']
-        self.num_evals = kwargs['num_evals']
-        self.datamap_kshots = kwargs['datamap_kshots']
+        self.model = kwargs['model']
+        self.datamap_path = kwargs['datamap_results_path']
+        self.datamap_plot_path =kwargs['datamap_plot_path']
+
+        print("---------------------------------------------------------------")
         print(f"Initializing DatamapExampleSelector with the following configuration:\n"
-              f"\t Model Name: {self.model_name}\n"
-              f"\t Dataset Name: {self.dataset_name}\n"
-              f"\t Number of Evaluations per example: {self.num_evals}\n"
-              f"\t trained with k_shots: {self.datamap_kshots}")
+              f"\t Model Name: {kwargs['model_name']}\n"
+              f"\t Dataset Name: {self.dataset.get_name()}\n"
+              f"\t Number of Evaluations per example: {kwargs['num_evals']}\n"
+              f"\t trained with k_shots: {kwargs['datamap_kshots']}"
+              f"\t train size: {len(kwargs['dataset'].train)}\n"
+              f"\t datamap path: {kwargs['datamap_results_path']}\n"
+              f"\t datamap plot path: {kwargs['datamap_plot_path']}")
+        print("---------------------------------------------------------------")
+
         if self.datamap_path is not None and self.datamap_path.exists():
             print(f"The datamap already exists! Loading from {self.datamap_path}")
             self.datamapping_results = utils.load_results(self.datamap_path)
@@ -79,8 +85,8 @@ class DatamapExampleSelector(BaseExampleSelector):
                 dataset=kwargs['dataset'],
                 num_evals=kwargs['num_evals'],
                 k_shots=kwargs['datamap_kshots'],
-                title=f"{self.model_name}, {self.dataset_name} Data Map",
-                plot_path= utils.datamap_plots_dir / f"{self.model_name}_{self.dataset_name}_k_{self.datamap_kshots}_num_evals_{self.num_evals}.png",
+                title=f"{kwargs['model_name']}, {kwargs['dataset'].get_name()} Data Map",
+                plot_path=kwargs['datamap_plot_path'],
                 show_plot=True
             )
             print(f"Datamap created successfully. saving in {self.datamap_path}")
