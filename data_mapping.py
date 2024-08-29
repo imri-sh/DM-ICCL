@@ -9,22 +9,30 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
     """
-    # TODO - Document.
-    :param dataset:
-    :param model:
-    :param tokenizer:
-    :param M:
-    :param num_evals:
-    :param k_shots:
-    :return:
+    Calculate the mean confidence and standard deviation of softmax probabilities for each sample in the dataset.
+    Args:
+        dataset (Dataset): The dataset containing the samples.
+        model (Model): The model used for generating logits.
+        tokenizer (Tokenizer): The tokenizer used for tokenizing the prompt.
+        num_evals (int): The number of evaluations to perform for each sample.
+        k_shots (int): The number of samples to select for each evaluation.
+    Returns:
+        list: A list of dictionaries containing the following information for each sample:
+            - 'sample_index': The index of the sample.
+            - 'mean_confidence': The mean confidence of softmax probabilities.
+            - 'confidence_std': The standard deviation of softmax probabilities.
+            - 'correct_probs': A list of correct probabilities for each evaluation.
     """
+    # Get the training data and its length
     train, _, _ = dataset.get_data()
+    train_len = len(train)
 
     # Store results for each sample
     results = []
-    train_len = len(train)
+    
     # Run the process num_difficulty_train_samples times
     for sample_idx in tqdm(range(train_len)):
+
         sample = train[sample_idx]
         correct_answer = sample['answerKey']
         correct_index = ord(correct_answer) - 65  # Convert 'A' to 0, 'B' to 1, etc.
@@ -32,9 +40,6 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
         correct_probs = []
 
         for _ in range(num_evals):
-            # TODO - change to example selector?
-            # Probably not because we always use random selection for data mapping
-
             # Don't use current example in the k-shots
             train_indices = np.arange(len(train))
             valid_indices = np.delete(train_indices, sample_idx)
