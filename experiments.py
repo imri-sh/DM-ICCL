@@ -1,16 +1,12 @@
-from pathlib import Path
-
 import numpy as np
 import torch
+import utils
+
 from tqdm import tqdm
 from transformers import LogitsProcessor
-
-import example_selectors
-from utils import plots_dir, results_dir, datamap_plots_dir, data_mapping_jsons_dir
-import utils
+from utils import plots_dir, results_dir
 from model_loader import ModelLoader
-from args_utils import  set_seed, prase_dataset_arg
-from datetime import datetime
+from args_utils import set_seed, prase_dataset_arg
 from example_selectors import ExampleSelectorFactory
 
 class LimitTokensLogitsProcessor(LogitsProcessor):

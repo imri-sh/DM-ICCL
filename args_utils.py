@@ -1,14 +1,14 @@
 import random
 import numpy as np
 import torch
-from dataset_admin import AgNewsDataset, ArcDataset, EmotionDataset
+from dataset_admin import AgNewsDataset, ArcDataset
 
 def get_args(parser):
     # Adding arguments to the parser
     parser.add_argument(
         "--datasets",
         type=str,
-        default="arc,emotions",
+        default="arc",
         # choices=["arc", "emotions"],
         help="Dataset to use",
     )
@@ -77,8 +77,6 @@ def get_args(parser):
 def prase_dataset_arg(dataset_arg):
     if dataset_arg == "arc":
         dataset = ArcDataset()
-    elif dataset_arg == "emotions":
-        dataset = EmotionDataset()
     elif dataset_arg == "agnews":
         dataset = AgNewsDataset()
     else:

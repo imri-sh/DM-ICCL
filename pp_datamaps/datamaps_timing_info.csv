@@ -1,0 +1,3 @@
+Model,Dataset,Train Size,Datamap Creation Time (s)
+llama-3-8B-instruct,agnews,1119,245.58261227607727
+Phi-3.5,agnews,1119,331.4328751564026

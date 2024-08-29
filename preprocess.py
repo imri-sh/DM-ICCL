@@ -1,17 +1,12 @@
 from itertools import product
 from pathlib import Path
 
-from safetensors import torch
-
 import utils
 from args_utils import set_seed, prase_dataset_arg
 from data_mapping import data_mapping
 from experiments import Experiments
 from model_loader import set_dtype, ModelLoader
 import torch
-
-import time
-import pandas as pd
 
 import time
 import pandas as pd
@@ -33,13 +28,15 @@ def preprocess_datamaps(models, datasets, portions=None, sizes=None, datamap_ksh
     total_start_time = time.time()
 
     for i, (model_name, dataset_name) in enumerate(product(models, datasets)):
-        model, tokenizer, model_name = ModelLoader.get_model_and_tokenizer(model_name, device=device)
         dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions, sizes)
         train_set, _, _ = dataset.get_data()
         train_size = len(train_set)
         datamap_path = pp_datamaps_results_dir / f"dm_{model_name}_{dataset_name}_train_size_{train_size}_k_{datamap_kshots}_num_evals_{num_evals}.json"
 
         if not datamap_path.exists():
+            model, tokenizer, model_name = ModelLoader.get_model_and_tokenizer(
+                model_name, device=device
+            )
             print(f"Creating datamap {i + 1} out of {num_of_datamaps} datamaps.\n")
             print("---------------------------------------------------------------")
             print(f"\t Model Name: {model_name}\n"
@@ -111,4 +108,3 @@ def preprocess_datamaps(models, datasets, portions=None, sizes=None, datamap_ksh
 
 
 # Example usage:
-

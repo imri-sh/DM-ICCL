@@ -18,14 +18,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
     :param k_shots:
     :return:
     """
-    train, _,_= dataset.get_data()
-    # train = validation  # TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO# TODO
-    # test = None  # TODO - Currently not touching this.
-
-    # # Printing out the lengths of the data:
-    # print("train - ", type(train), "with length", len(train))
-    # print("validation - ", type(validation), "with length", len(validation))
-    # print("test - ", type(test), "with length", len(test))
+    train, _, _ = dataset.get_data()
 
     # Store results for each sample
     results = []

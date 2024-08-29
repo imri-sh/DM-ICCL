@@ -1,7 +1,16 @@
 from datasets import Dataset, load_dataset
 from abc import ABC, abstractmethod
 
-
+basic_prompt_arc = (
+    "Given a question answering task from the 3rd to 9th-grade science exam. "
+    "The question contains four options 'A', 'B', 'C' and 'D'."
+    "Select the most appropriate choice that answers the question.\n"
+)
+basic_prompt_agnews = (
+    "Classify the news articles into the categories."
+    "The categories are labeled 'A', 'B', 'C' and 'D'."
+    "Select the most appropriate category for the news article.\n"
+)
 class BaseDataset(ABC):
     """
     Interface for a dataset for classes which are responsible for:
@@ -67,9 +76,7 @@ class ArcDataset(BaseDataset):
     #     return prompt
 
     def create_few_shot_prompt(self, sample, context_examples):
-        prompt = ("Given a question answering task from the 3rd to 9th-grade science exam. "
-                  "The question contains four options 'A.', 'B.', 'C.' and 'D.' "
-                  "Select the most appropriate choice that answers the question. Here are few examples:\n")
+        prompt = basic_prompt_arc
         for example in context_examples:
             prompt += f"Question: {example['question']}\n"
             for i, choice in enumerate(example['choices']['text']):
@@ -86,59 +93,14 @@ class ArcDataset(BaseDataset):
         return "ARC-challenge dataset"
 
 
-EMOTION_LABELS = ["sadness", "joy", "love", "anger", "fear", "surprise"]
-LABELS = ["A", "B", "C", "D", "E", "F"]
-CHOICES = {"text": EMOTION_LABELS, "label": LABELS}
-
-
-def emotion_convert_to_multiple_choice(sample):
+def agnews_preprocessing(sample):
     # Convert numeric labels to letters
     sample["answerKey"] = chr(65 + int(sample["label"]))  # '0' -> 'A', '1' -> 'B', etc.
     sample["question"] = sample["text"]
-    sample["choices"] = CHOICES
-    return sample
-
-
-class EmotionDataset(BaseDataset):
-    def __init__(self):
-        # Load the ARC dataset
-        emotion_dataset = load_dataset("emotion", "split")
-        # Preprocess the dataset to handle numeric labels
-        emotion_dataset = emotion_dataset.map(emotion_convert_to_multiple_choice)
-        self.train = emotion_dataset["train"]
-        self.validation = emotion_dataset["validation"]
-        self.test = emotion_dataset["test"]
-
-    def get_data(self):
-        return self.train, self.validation, self.test
-
-    def create_few_shot_prompt(self, sample, context_examples):
-        prompt = "Choose the emotion that best fits the following statements, using the letter of the correct answer.\n\n"
-        for example in context_examples:
-            prompt += f"Statement: {example['question']}\n"
-            for i, choice in enumerate(example["choices"]["text"]):
-                prompt += f"{chr(65 + i)}. {choice}\n"
-            prompt += f"Answer: {example['answerKey']}\n\n"
-
-        prompt += f"Statement: {sample['question']}\n"
-        for i, choice in enumerate(sample["choices"]["text"]):
-            prompt += f"{chr(65 + i)}. {choice}\n"
-        prompt += "Answer: "
-        return prompt
-
-    def get_name(self):
-        return "Emotion dataset"
-
-AGNEWS_LABELS = ["World", "Sports", "Business", "Sci/Tech"]
-AGNEWS_LABELS_LETTERS = ["A", "B", "C", "D"]
-CHOICES = {"text": AGNEWS_LABELS, "label": AGNEWS_LABELS_LETTERS}
-
-
-def agnews_convert_to_multiple_choice(sample):
-    # Convert numeric labels to letters
-    sample["answerKey"] = chr(65 + int(sample["label"]))  # '0' -> 'A', '1' -> 'B', etc.
-    sample["question"] = sample["text"]
-    sample["choices"] = CHOICES
+    sample["choices"] = {
+        "text": ["World", "Sports", "Business", "Sci/Tech"],
+        "label": ["A", "B", "C", "D"],
+    }
     return sample
 
 
@@ -148,7 +110,7 @@ class AgNewsDataset(BaseDataset):
         ag_news_dataset = load_dataset("ag_news", "default")
 
         # Preprocess the dataset to handle numeric labels
-        ag_news_dataset = ag_news_dataset.map(agnews_convert_to_multiple_choice)
+        ag_news_dataset = ag_news_dataset.map(agnews_preprocessing)
 
         all_train = ag_news_dataset["train"]
         split = all_train.train_test_split(test_size=0.2)
@@ -160,7 +122,7 @@ class AgNewsDataset(BaseDataset):
         return self.train, self.validation, self.test
 
     def create_few_shot_prompt(self, sample, context_examples):
-        prompt = "Classify the news articles into the categories. \n"
+        prompt = basic_prompt_agnews
         for example in context_examples:
             prompt += f"News: {example['question']}\n"
             for i, choice in enumerate(example["choices"]["text"]):
