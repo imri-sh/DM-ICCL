@@ -182,6 +182,7 @@ def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_resu
         plt.show()
 
     return experiment_results_path
+
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
