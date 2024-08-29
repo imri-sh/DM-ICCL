@@ -22,14 +22,14 @@ class ModelLoader:
             model_name = "microsoft/phi-2"
             model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
-            return model, tokenizer, "phi-2"
+            return model, tokenizer, "phi2"
 
         elif model_name == 'phi3':
             """ google's phi-3. 3.8B params."""
             model_name = "microsoft/Phi-3-mini-4k-instruct"
             model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
-            return model, tokenizer, "Phi-3"
+            return model, tokenizer, "phi3"
 
         elif model_name == 'phi3_5':
             """ google's phi-3. 3.8B params."""
@@ -38,7 +38,7 @@ class ModelLoader:
                                                          trust_remote_code=True, ).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
-            return model, tokenizer, "Phi-3.5"
+            return model, tokenizer, "phi3_5"
 
         elif model_name == 'flan_t5_base':
             """ Microsoft's FLAN T5 base. 250M params."""
@@ -67,7 +67,7 @@ class ModelLoader:
                 device
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama-3-8B-instruct"
+            return model, tokenizer, "llama3_8b_instruct"
 
         elif model_name == 'llama2_7b':
             model_name = "meta-llama/Llama-2-7b-hf"
@@ -75,21 +75,21 @@ class ModelLoader:
                 device
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama-2-7B"
+            return model, tokenizer, "llama2_7B"
         elif model_name == 'llama2_13b':
             model_name = "meta-llama/Llama-2-13b-hf"
             model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
                 device
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama-2-13B"
+            return model, tokenizer, "llama2_13b"
         elif model_name == 'llama2_7b_chat':
             model_name = "meta-llama/Llama-2-7b-chat-hf"
             model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
                 device
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama-2-7B"
+            return model, tokenizer, "llama2_7b_chat"
 
         elif model_name == 'gemma2_9b_instruct':
             """Google's Gemma 2 9B instruct. 9B params."""
@@ -98,21 +98,21 @@ class ModelLoader:
                 device
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "gemma-2-9B-instruct"
+            return model, tokenizer, "gemma2_9b_instruct"
         elif model_name == "gemma2_9b":
             model_name = "google/gemma-2-9b"
             model = AutoModelForCausalLM.from_pretrained(
                 model_name, torch_dtype=dtype
             ).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "gemma-2-9B"
-        elif model_name == "llama_3_8B":
+            return model, tokenizer, "gemma2_9b"
+        elif model_name == "llama_3_8b":
             model_name = "meta-llama/Meta-Llama-3-8B"
             model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
                 device
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama_3_8B"
+            return model, tokenizer, "llama_3_8b"
 
         else:
             raise Exception(f'{model_name} currently not supported.')

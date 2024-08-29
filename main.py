@@ -104,7 +104,7 @@ def main():
     # args.models = args.models.split(',')
     args.models = [
         "llama3_8b_instruct",
-        "llama_3_8B",
+        "llama_3_8b",
         "phi3_5",
         "gemma2_9b_instruct",
         "gemma2_9b",
