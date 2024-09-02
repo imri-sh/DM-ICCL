@@ -99,17 +99,18 @@ def main():
     # args.models = "llama3_8b_instruct,llama_3_8B"
     # args.models = "llama3_8b_instruct,phi3_5,"
     args.datasets = "agnews,arc"
-    args.kshots = [0, 1, 2]
+    # args.kshots = [0, 1, 2]
+    args.kshots = [6]
     args.kshots_datamap_similarity = [[3, 2, 1], [0, 4, 2], [2, 4, 0]]
     args.datamap_kshots = 3
     args.num_evals = 5
     # args.models = args.models.split(',')
     args.models = [
-        "llama3_8b_instruct",
-        "llama_3_8b",
+        # "llama3_8b_instruct",
+        # "llama_3_8b",
         "phi3_5",
-        "gemma2_9b_instruct",
-        "gemma2_9b",
+        # "gemma2_9b_instruct",
+        # "gemma2_9b",
     ]
     args.datasets = args.datasets.split(',')
     # args.sizes = None

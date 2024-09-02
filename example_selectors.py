@@ -41,7 +41,7 @@ class SimilarityBasedExampleSelector(BaseExampleSelector):
     def add_example(self, example):
         self.examples.append(example)
 
-    def select_examples(self, input_variables, key, kshot):
+    def select_examples(self, input_variables, key, kshot) -> List:
         if kshot == 0:
             return {}
         sample_embedding = self.model.encode([input_variables[key]], convert_to_tensor=True)
@@ -110,7 +110,7 @@ class DatamapExampleSelector(BaseExampleSelector):
         if difficulty == 'hard':
             self.hard.append(example)
 
-    def select_examples(self, input_variables, key, kshot):
+    def select_examples(self, input_variables, key, kshot) -> List:
         '''
         :param input_variables:
         :param key:
@@ -132,6 +132,9 @@ class DatamapExampleSelector(BaseExampleSelector):
 
 class SimilarityDatamapSelector(BaseExampleSelector):
     def __init__(self, **kwargs):
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.examples = kwargs['examples']
+
         easy_kwargs = kwargs.copy()
         ambiguous_kwargs = kwargs.copy()
         hard_kwargs = kwargs.copy()
@@ -144,23 +147,18 @@ class SimilarityDatamapSelector(BaseExampleSelector):
         self.similarity_ambiguous = SimilarityBasedExampleSelector(**ambiguous_kwargs)
         self.similarity_hard = SimilarityBasedExampleSelector(**hard_kwargs)
 
-
     def add_example(self, example):
         raise NotImplementedError
 
-    def select_examples(self, input_variables, key, kshot):
-        if kshot == 0:
-            return {}
-        sample_embedding = self.model.encode([input_variables[key]], convert_to_tensor=True)
-        similarities = util.pytorch_cos_sim(sample_embedding, self.pool_embeddings)[0].cpu().numpy()
-        top_indices = similarities.argsort()[-kshot:]
-        similar_examples = [self.examples[int(i)] for i in top_indices]
-        return similar_examples
+    def select_examples(self, input_variables, key, kshot) -> List:
+        assert isinstance(kshot, list) or isinstance(kshot, tuple)
+        assert len(kshot) == 3  # easy, ambiguous, hard
 
-    @staticmethod
-    def compute_embeddings(model, examples, key):
-        embeddings = model.encode([example[key] for example in examples], convert_to_tensor=True)
-        return embeddings
+        easy_examples = self.similarity_easy.select_examples(input_variables, key, kshot[0])
+        ambiguous_examples = self.similarity_ambiguous.select_examples(input_variables, key, kshot[1])
+        hard_examples = self.similarity_hard.select_examples(input_variables, key, kshot[2])
+
+        return easy_examples + ambiguous_examples + hard_examples  # TODO - Note, currently orders easy->ambig.->hard
 
 
 class ExampleSelectorFactory:
