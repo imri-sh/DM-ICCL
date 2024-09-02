@@ -9,6 +9,7 @@ from args_utils import get_args
 from experiments import Experiments
 from model_loader import set_dtype
 
+
 def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_results_bool: bool = True):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
@@ -48,8 +49,8 @@ def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_resu
         print(experiment_results)
 
         experiment_results_path = (
-            experiment_results_dir
-            / f"experiment_results_{args.example_selector_type}_{timestamp}.csv"
+                experiment_results_dir
+                / f"experiment_results_{args.example_selector_type}_{timestamp}.csv"
         )
         if save_results_bool:
             experiment_results.to_csv(experiment_results_path, index=True)
@@ -91,6 +92,7 @@ def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_resu
 
     return experiment_results_path
 
+
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
@@ -98,7 +100,7 @@ def main():
     # args.models = "llama3_8b_instruct,phi3_5,"
     args.datasets = "agnews,arc"
     args.kshots = [0, 1, 2]
-    # args.kshots_for_datamap_selector = [[1, 0, 0], [1, 1, 1]]
+    args.kshots_datamap_similarity = [[3, 2, 1], [0, 4, 2], [2, 4, 0]]
     args.datamap_kshots = 3
     args.num_evals = 5
     # args.models = args.models.split(',')
@@ -116,13 +118,13 @@ def main():
     # args.sizes = [100, 15, 15]
     print("########################## Stage 1: Datamap Constructions ########################################")
     timing_info = preprocess_datamaps(models=args.models,
-                        datasets=args.datasets,
-                        portions=args.portions,
-                        sizes=args.sizes,
-                        datamap_kshots=args.datamap_kshots,
-                        num_evals=args.num_evals,
-                        seed=args.seed,
-                        save_and_show_plots=True)
+                                      datasets=args.datasets,
+                                      portions=args.portions,
+                                      sizes=args.sizes,
+                                      datamap_kshots=args.datamap_kshots,
+                                      num_evals=args.num_evals,
+                                      seed=args.seed,
+                                      save_and_show_plots=True)
     print(timing_info)
     print("####################################### DONE ##################################################")
     return
@@ -132,6 +134,7 @@ def main():
     # experiment_results = load_results(experiment_results_path)
     print("####################################### DONE ##################################################")
     print(experiment_results_path)
+
 
 if __name__ == '__main__':
     main()

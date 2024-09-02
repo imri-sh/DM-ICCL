@@ -12,12 +12,13 @@ class BaseExampleSelector(ABC):
     """Interface for selecting examples to include in prompts."""
 
     @abstractmethod
-    def select_examples(self, input_variables: Dict[str, str], key:str, kshot: int) -> List[dict]:
+    def select_examples(self, input_variables: Dict[str, str], key: str, kshot: int) -> List[dict]:
         """Select which examples to use based on the inputs."""
 
     @abstractmethod
     def add_example(self, example: Dict[str, str]) -> Any:
         """Add new example to store."""
+
 
 class RandomExampleSelector(BaseExampleSelector):
     def __init__(self, **kwargs):
@@ -60,7 +61,7 @@ class DatamapExampleSelector(BaseExampleSelector):
         self.dataset = kwargs['dataset']
         self.model = kwargs['model']
         self.datamap_path = kwargs['datamap_results_path']
-        self.datamap_plot_path =kwargs['datamap_plot_path']
+        self.datamap_plot_path = kwargs['datamap_plot_path']
 
         print("---------------------------------------------------------------")
         print(f"Initializing DatamapExampleSelector with the following configuration:\n"
@@ -128,6 +129,40 @@ class DatamapExampleSelector(BaseExampleSelector):
         # print(f"Number of Examples is {len(examples)}")
         return examples
 
+
+class SimilarityDatamapSelector(BaseExampleSelector):
+    def __init__(self, **kwargs):
+        easy_kwargs = kwargs.copy()
+        ambiguous_kwargs = kwargs.copy()
+        hard_kwargs = kwargs.copy()
+
+        easy_kwargs['examples'] = kwargs["easy_examples"]
+        ambiguous_kwargs['examples'] = kwargs["ambiguous_examples"]
+        hard_kwargs['examples'] = kwargs["hard_examples"]
+
+        self.similarity_easy = SimilarityBasedExampleSelector(**easy_kwargs)
+        self.similarity_ambiguous = SimilarityBasedExampleSelector(**ambiguous_kwargs)
+        self.similarity_hard = SimilarityBasedExampleSelector(**hard_kwargs)
+
+
+    def add_example(self, example):
+        raise NotImplementedError
+
+    def select_examples(self, input_variables, key, kshot):
+        if kshot == 0:
+            return {}
+        sample_embedding = self.model.encode([input_variables[key]], convert_to_tensor=True)
+        similarities = util.pytorch_cos_sim(sample_embedding, self.pool_embeddings)[0].cpu().numpy()
+        top_indices = similarities.argsort()[-kshot:]
+        similar_examples = [self.examples[int(i)] for i in top_indices]
+        return similar_examples
+
+    @staticmethod
+    def compute_embeddings(model, examples, key):
+        embeddings = model.encode([example[key] for example in examples], convert_to_tensor=True)
+        return embeddings
+
+
 class ExampleSelectorFactory:
     @staticmethod
     def get_example_selector(example_selector_type, **kwargs):
@@ -139,4 +174,3 @@ class ExampleSelectorFactory:
             return DatamapExampleSelector(**kwargs)
         else:
             raise Exception(f'{example_selector_type} currently not supported.')
-
