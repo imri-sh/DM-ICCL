@@ -13,7 +13,7 @@ from model_loader import set_dtype
 def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_results_bool: bool = True):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
-    example_selectors_types = ["random", "similarity", "datamap"]
+    example_selectors_types = ["random", "similarity", "datamap", "datamap_similarity"]
     num_of_experiments = len(args.models) * len(args.datasets)
     print(f"Total number of experiments: {num_of_experiments * len(example_selectors_types)}")
 

@@ -130,7 +130,7 @@ class DatamapExampleSelector(BaseExampleSelector):
         return examples
 
 
-class SimilarityDatamapSelector(BaseExampleSelector):
+class DatamapSimilaritySelector(BaseExampleSelector):
     def __init__(self, **kwargs):
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.examples = kwargs['examples']
@@ -170,5 +170,7 @@ class ExampleSelectorFactory:
             return SimilarityBasedExampleSelector(**kwargs)
         elif example_selector_type == 'datamap':
             return DatamapExampleSelector(**kwargs)
+        elif example_selector_type == 'datamap_similarity':
+            return DatamapSimilaritySelector(**kwargs)
         else:
             raise Exception(f'{example_selector_type} currently not supported.')
