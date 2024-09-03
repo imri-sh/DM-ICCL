@@ -13,7 +13,7 @@ from model_loader import set_dtype
 def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_results_bool: bool = True):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
-    example_selectors_types = ["random", "similarity", "datamap", "datamap_similarity"]
+    example_selectors_types = args.example_selectors_types
     num_of_experiments = len(args.models) * len(args.datasets)
     print(f"Total number of experiments: {num_of_experiments * len(example_selectors_types)}")
 
@@ -27,6 +27,7 @@ def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_resu
 
         for j, (model_name, dataset_name) in enumerate(product(args.models, args.datasets)):
             print(f"Running experiment {j + 1}/{num_of_experiments}")
+            experiments.reset_seed()
             experiments.set_model(model_name=model_name)
             experiments.set_dataset(dataset_name=dataset_name, portions=args.portions, sizes=args.sizes)
 
@@ -98,17 +99,24 @@ def main():
     args = get_args(parser).parse_args()
     # args.models = "llama3_8b_instruct,llama_3_8B"
     # args.models = "llama3_8b_instruct,phi3_5,"
-    args.datasets = "agnews,arc"
-    # args.kshots = [0, 1, 2]
-    args.kshots = [6]
-    args.kshots_datamap_similarity = [[3, 2, 1], [0, 4, 2], [2, 4, 0]]
+    # args.datasets = "agnews,arc"
+    args.datasets = "arc"
+    # args.example_selectors_types = ["random", "similarity", "datamap", "datamap_similarity"]
+    args.example_selectors_types = ["random", "similarity"]
+    args.kshots = [0, 1, 2]
+    # args.kshots_datamap_similarity = [[1, 2, 3], [3, 2, 1]]
+    # args.kshots_datamap_similarity = [[1, 2, 3], [3, 2, 1], [5, 1, 0], [4, 2, 0], [2, 4, 0], [0, 4, 2],
+    #                                   [0, 2, 4], [2, 0, 4], [4, 0, 2], [6, 0, 0], [0, 6, 0], [0, 0, 6], ]
     args.datamap_kshots = 3
     args.num_evals = 5
     # args.models = args.models.split(',')
     args.models = [
         # "llama3_8b_instruct",
         # "llama_3_8b",
-        "phi3_5",
+        # "phi3_5",
+        # "phi2",
+        'flan_t5_base',
+        'flan_t5_large'
         # "gemma2_9b_instruct",
         # "gemma2_9b",
     ]
@@ -116,7 +124,8 @@ def main():
     # args.sizes = None
     args.portions = None
     args.sizes = [1119, 299, 1172]
-    # args.sizes = [100, 15, 15]
+    # args.sizes = [1119, 50, 1172]
+    # args.sizes = [50, 15, 15]
     print("########################## Stage 1: Datamap Constructions ########################################")
     timing_info = preprocess_datamaps(models=args.models,
                                       datasets=args.datasets,
@@ -128,7 +137,7 @@ def main():
                                       save_and_show_plots=True)
     print(timing_info)
     print("####################################### DONE ##################################################")
-    return
+
     print("########################## Stage 2: Experiments ###############################################")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
     experiment_results_path = run_experiments(args, timestamp)

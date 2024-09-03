@@ -34,17 +34,17 @@ class RandomExampleSelector(BaseExampleSelector):
 class SimilarityBasedExampleSelector(BaseExampleSelector):
 
     def __init__(self, **kwargs):
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.encoder = SentenceTransformer("all-MiniLM-L6-v2")
         self.examples = kwargs['examples']
-        self.pool_embeddings = self.compute_embeddings(self.model, self.examples, kwargs['key'])
+        self.pool_embeddings = self.compute_embeddings(self.encoder, self.examples, kwargs['key'])
 
     def add_example(self, example):
         self.examples.append(example)
 
     def select_examples(self, input_variables, key, kshot) -> List:
         if kshot == 0:
-            return {}
-        sample_embedding = self.model.encode([input_variables[key]], convert_to_tensor=True)
+            return []
+        sample_embedding = self.encoder.encode([input_variables[key]], convert_to_tensor=True)
         similarities = util.pytorch_cos_sim(sample_embedding, self.pool_embeddings)[0].cpu().numpy()
         top_indices = similarities.argsort()[-kshot:]
         similar_examples = [self.examples[int(i)] for i in top_indices]
@@ -132,6 +132,7 @@ class DatamapExampleSelector(BaseExampleSelector):
 
 class DatamapSimilaritySelector(BaseExampleSelector):
     def __init__(self, **kwargs):
+        self.dataset = kwargs['dataset']
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.examples = kwargs['examples']
 
@@ -139,9 +140,11 @@ class DatamapSimilaritySelector(BaseExampleSelector):
         ambiguous_kwargs = kwargs.copy()
         hard_kwargs = kwargs.copy()
 
-        easy_kwargs['examples'] = kwargs["easy_examples"]
-        ambiguous_kwargs['examples'] = kwargs["ambiguous_examples"]
-        hard_kwargs['examples'] = kwargs["hard_examples"]
+        data_mapper = DatamapExampleSelector(**kwargs)
+
+        easy_kwargs['examples'] = [self.dataset.train[sample["sample_index"]] for sample in data_mapper.easy]
+        ambiguous_kwargs['examples'] = [self.dataset.train[sample["sample_index"]] for sample in data_mapper.ambiguous]
+        hard_kwargs['examples'] = [self.dataset.train[sample["sample_index"]] for sample in data_mapper.hard]
 
         self.similarity_easy = SimilarityBasedExampleSelector(**easy_kwargs)
         self.similarity_ambiguous = SimilarityBasedExampleSelector(**ambiguous_kwargs)
@@ -153,7 +156,6 @@ class DatamapSimilaritySelector(BaseExampleSelector):
     def select_examples(self, input_variables, key, kshot) -> List:
         assert isinstance(kshot, list) or isinstance(kshot, tuple)
         assert len(kshot) == 3  # easy, ambiguous, hard
-
         easy_examples = self.similarity_easy.select_examples(input_variables, key, kshot[0])
         ambiguous_examples = self.similarity_ambiguous.select_examples(input_variables, key, kshot[1])
         hard_examples = self.similarity_hard.select_examples(input_variables, key, kshot[2])
