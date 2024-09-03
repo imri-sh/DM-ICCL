@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from dataset_admin import AgNewsDataset, ArcDataset
 
+
 def get_args(parser):
     # Adding arguments to the parser
     parser.add_argument(
@@ -62,7 +63,7 @@ def get_args(parser):
         "--example_selector_type",
         type=str,
         default="random",
-        choices=["random", "similarity","datamap"],
+        choices=["random", "similarity", "datamap"],
         help="The type of example selector to use",
     )
     parser.add_argument(
@@ -83,7 +84,16 @@ def prase_dataset_arg(dataset_arg):
         raise ValueError(f"Dataset {dataset_arg} is not supported.")
     return dataset
 
+
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+
+    torch.backends.cudnn.enabled = True
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
