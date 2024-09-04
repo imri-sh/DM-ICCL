@@ -40,6 +40,13 @@ class ModelLoader:
 
             return model, tokenizer, "phi3_5"
 
+        elif model_name == 'microsoft/phi3.5_MoE':
+            model_name = "microsoft/Phi-3.5-MoE-instruct"
+            model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
+            tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+
+            return model, tokenizer, "phi3.5_MoE"
+
         elif model_name == 'flan_t5_base':
             """ Microsoft's FLAN T5 base. 250M params."""
             model_name = "google/flan-t5-base"
