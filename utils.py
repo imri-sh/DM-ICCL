@@ -23,6 +23,39 @@ datamap_plots_dir = plots_dir / "datamaps"
 datamap_plots_dir.mkdir(exist_ok=True)
 
 
+def plot_code_exiled(plot_data, timestamp):
+    plot_df = pd.DataFrame(plot_data)
+    # Create subplots for each model-dataset pair
+    unique_datasets_models = plot_df['model_dataset'].unique()
+    num_subplots = len(unique_datasets_models)
+    fig, axes = plt.subplots(nrows=num_subplots, figsize=(14, 5 * num_subplots))
+
+    for ax, dataset_model in zip(axes, unique_datasets_models):
+        subset_df = plot_df[plot_df['model_dataset'] == dataset_model]
+
+        sns.lineplot(
+            data=subset_df,
+            x='kshots',
+            y='accuracy',
+            hue='example_selector_type',
+            style='example_selector_type',
+            markers=True,
+            dashes=False,
+            linewidth=2.5,
+            ax=ax
+        )
+
+        ax.set_title(f'Results for {dataset_model}', fontsize=16)
+        ax.set_xticks(np.arange(min(subset_df['kshots']), max(subset_df['kshots']) + 1, 1))
+        ax.set_xlabel('kshots', fontsize=14)
+        ax.set_ylabel('Accuracy', fontsize=14)
+        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.legend(title='Example Selector Type', fontsize=12, title_fontsize=14)
+
+    plt.tight_layout()
+    plot_save_path = plots_dir / f'experiment_results_{timestamp}_subplots.png'
+    plt.savefig(plot_save_path, bbox_inches='tight')
+    plt.show()
 def plot_confusion_matrix(all_labels, all_preds, normalize=False, title='Confusion matrix',
                           cmap='Blues', filepath:Path=None):
     labels = ["A", "B", "C", "D"]
