@@ -67,12 +67,12 @@ class Experiments:
         for k in tqdm(ks,
                       desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using "
                            f"{example_selector_type} example selector"):
-            accuracy, _, _ = self.evaluate_model(example_selector, k, order)
-            # k_int = k if isinstance(k, int) else sum(k)  # This is in case k is [x,y,z]
-            if isinstance(k, int):
-                accs[k] = accuracy
-            else:
-                accs[tuple(k)] = accuracy
+            accuracy, _, _ = self.evaluate_model(example_selector, k, eval_test_set=False, order=order)
+            # if isinstance(k, int):
+            #     accs[k] = accuracy
+            # else:
+            #     accs[str(k)] = accuracy
+            accs[str(k)] = accuracy
             print(f"kshot={k}, accuracy={accuracy * 100:.2f}% ")
 
         if show_plot:
