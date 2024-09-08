@@ -40,25 +40,32 @@ class ModelLoader:
 
             return model, tokenizer, "phi3_5"
 
+        elif model_name == 'phi3_5_MoE':
+            model_name = "microsoft/Phi-3.5-MoE-instruct"
+            model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
+            tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+
+            return model, tokenizer, "phi3_5_MoE"
+
         elif model_name == 'flan_t5_base':
             """ Microsoft's FLAN T5 base. 250M params."""
             model_name = "google/flan-t5-base"
             model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
-            return model, tokenizer, "flan-t5-base"
+            return model, tokenizer, "flan_t5_base"
 
         elif model_name == 'flan_t5_large':
             """ Microsoft's FLAN T5 large. 780M params."""
             model_name = "google/flan-t5-large"
             model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
-            return model, tokenizer, "flan-t5-large"
+            return model, tokenizer, "flan_t5_large"
         elif model_name == 'flan_t5_xl':
             """ Microsoft's FLAN T5 xl. 3B params."""
             model_name = "google/flan-t5-xl"
             model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
-            return model, tokenizer, "flan-t5-xl"
+            return model, tokenizer, "flan_t5_xl"
 
         elif model_name == 'llama3_8b_instruct':
             """Meta's Llama 3 8B instruct. 8B params."""
@@ -75,7 +82,7 @@ class ModelLoader:
                 device
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama2_7B"
+            return model, tokenizer, "llama2_7b"
         elif model_name == 'llama2_13b':
             model_name = "meta-llama/Llama-2-13b-hf"
             model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(

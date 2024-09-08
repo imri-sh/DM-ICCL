@@ -7,7 +7,8 @@ from transformers import LogitsProcessor
 from utils import plots_dir, results_dir
 from model_loader import ModelLoader
 from args_utils import set_seed, prase_dataset_arg
-from example_selectors import ExampleSelectorFactory
+from example_selectors import ExampleSelectorFactory, DatamapSimilaritySelector, DatamapExampleSelector
+
 
 class LimitTokensLogitsProcessor(LogitsProcessor):
     def __init__(self, allowed_tokens):
@@ -18,22 +19,28 @@ class LimitTokensLogitsProcessor(LogitsProcessor):
         mask[:, self.allowed_tokens] = 0
         return scores + mask
 
+
 class Experiments:
     def __init__(self, args):
         self.args = args
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.dataset = None
         self.model, self.tokenizer, self.model_name = None, None, None
-        set_seed(args.seed)
+        self.seed = args.seed
+        set_seed(self.seed)
+
+    def reset_seed(self):
+        set_seed(self.seed)
 
     def set_model(self, model_name: str):
-        self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(model_name, device=self.device)
+        self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(model_name,
+                                                                                          device=self.device)
 
     def set_dataset(self, dataset_name: str, portions=None, sizes=None):
         self.dataset_name = dataset_name
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions, sizes)
 
-    def experiment_acc_over_k(self, title: str="", show_plot:bool=True,timestamp:str=""):
+    def experiment_acc_over_k(self, ks, title: str = "", show_plot: bool = True, timestamp: str = "", order=None):
         plot_path, results_path = self.generate_result_paths(timestamp)
         pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir = utils.get_datamaps_dir_paths()
         # datamap_path = data_mapping_jsons_dir / "flan-t5-base_ARC-challenge dataset_k_3_num_evals_5_20240826_1843.json"
@@ -42,29 +49,35 @@ class Experiments:
         datamap_plot_path = pp_datamaps_plots_dir / f"dm_{self.model_name}_{self.dataset_name}_train_size_{len(train_set)}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}.png"
         example_selector_type = self.args.example_selector_type
         dataset_name = self.dataset.get_name()
-        ks = self.args.kshots
-        accs = {}
         kwargs = {
-                 'model':self.model,
-                 'tokenizer':self.tokenizer,
-                 'model_name':self.model_name,
-                 'dataset':self.dataset,
-                 'examples': train_set,
-                 'num_evals':self.args.num_evals,
-                 'datamap_kshots': self.args.datamap_kshots,
-                 'datamap_results_path': datamap_results_path,
-                 'datamap_plot_path': datamap_plot_path,
-                 'key':'question'}
+            'model': self.model,
+            'tokenizer': self.tokenizer,
+            'model_name': self.model_name,
+            'dataset': self.dataset,
+            'examples': train_set,
+            'num_evals': self.args.num_evals,
+            'datamap_kshots': self.args.datamap_kshots,
+            'datamap_results_path': datamap_results_path,
+            'datamap_plot_path': datamap_plot_path,
+            'key': 'question',
+        }
         example_selector = ExampleSelectorFactory.get_example_selector(example_selector_type=example_selector_type,
                                                                        **kwargs)
-
-        for k in tqdm(ks,desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using {example_selector_type} example selector"):
-            accuracy, _, _ = self.evaluate_model(example_selector, k)
-            accs[k] = accuracy
+        accs = {}
+        for k in tqdm(ks,
+                      desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using "
+                           f"{example_selector_type} example selector"):
+            accuracy, _, _ = self.evaluate_model(example_selector, k, order)
+            # k_int = k if isinstance(k, int) else sum(k)  # This is in case k is [x,y,z]
+            if isinstance(k, int):
+                accs[k] = accuracy
+            else:
+                accs[tuple(k)] = accuracy
             print(f"kshot={k}, accuracy={accuracy * 100:.2f}% ")
 
-        k_range = np.array(list(accs.keys())) * 3 if example_selector_type == 'datamap' else np.array(list(accs.keys()))
         if show_plot:
+            k_range = np.array(list(accs.keys())) * 3 if example_selector_type == 'datamap' else np.array(
+                list(accs.keys()))
             utils.plot_accuracies_over_kshots(
                 k_range=k_range,
                 accuracies=list(accs.values()),
@@ -74,7 +87,7 @@ class Experiments:
         utils.save_results(accs, save_path=results_path)
         return accs
 
-    def generate_result_paths(self, timestamp:str=""):
+    def generate_result_paths(self, timestamp: str = ""):
         dataset_name = self.dataset.get_name()
         # timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         experiment_plots_dir = plots_dir / "experiments"
@@ -83,17 +96,18 @@ class Experiments:
         experiment_results_dir.mkdir(exist_ok=True)
 
         plot_path = (
-            experiment_plots_dir
-            / f"{self.model_name}_{dataset_name}_accs_over_k_{timestamp}.png"
+                experiment_plots_dir
+                / f"{self.model_name}_{dataset_name}_accs_over_k_{timestamp}.png"
         )
         results_path = (
-            experiment_results_dir
-            / f"{self.model_name}_{dataset_name}_accs_over_k_{timestamp}.json"
+                experiment_results_dir
+                / f"{self.model_name}_{dataset_name}_accs_over_k_{timestamp}.json"
         )
 
         return plot_path, results_path
+
     def evaluate_model(
-        self, example_selector, k: int, eval_test_set: bool = False
+            self, example_selector, k: int, eval_test_set: bool = False, order=None
     ):
 
         # Define the tokens for 'A', 'B', 'C', 'D'
@@ -118,7 +132,11 @@ class Experiments:
         )
 
         for sample in tqdm(evaluation_set):
-            examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k)
+            if order is not None:
+                examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k,
+                                                            order=order)
+            else:
+                examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k)
             few_shot_prompt = self.dataset.create_few_shot_prompt(sample, examples)
 
             inputs = self.tokenizer(few_shot_prompt, return_tensors="pt").to(self.device)
@@ -159,9 +177,9 @@ class Experiments:
         dataset_sizes = None
         if self.args.portions:
             dataset_sizes = {
-                "train": f"{len(self.dataset.train)} ({int(self.args.portions[0]*100)}%)",
-                "validation": f"{len(self.dataset.validation)} ({int(self.args.portions[1]*100)}%)",
-                "test": f"{len(self.dataset.test)} ({int(self.args.portions[2]*100)}%)",
+                "train": f"{len(self.dataset.train)} ({int(self.args.portions[0] * 100)}%)",
+                "validation": f"{len(self.dataset.validation)} ({int(self.args.portions[1] * 100)}%)",
+                "test": f"{len(self.dataset.test)} ({int(self.args.portions[2] * 100)}%)",
             }
         elif self.args.sizes:
             dataset_sizes = {
