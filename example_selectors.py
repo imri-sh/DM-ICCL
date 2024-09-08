@@ -110,23 +110,36 @@ class DatamapExampleSelector(BaseExampleSelector):
         if difficulty == 'hard':
             self.hard.append(example)
 
-    def select_examples(self, input_variables, key, kshot) -> List:
-        '''
-        :param input_variables:
-        :param key:
-        :param kshot: [#easy, #ambiguous, #hard] by order
-        :return:
-        '''
-        if kshot == 0:
-            return []
+    def select_examples(self, input_variables, key, kshot, order: str = "E-A-H") -> List:
+        """
+        kshot: [#easy, #ambiguous, #hard] by order
+        """
+        assert isinstance(kshot, list) or isinstance(kshot, tuple)
+        assert len(kshot) == 3  # easy, ambiguous, hard
+
         examples = []
         pools = [self.easy, self.ambiguous, self.hard]
         for i in range(len(pools)):
-            samples = random.sample(list(pools[i]), kshot)
+            samples = random.sample(list(pools[i]), kshot[i])
             samples = [self.dataset.train[sample["sample_index"]] for sample in samples]
-            for sample in samples:
-                examples.append(sample)
-        # print(f"Number of Examples is {len(examples)}")
+            examples.append(samples)
+        easy_examples = examples[0]
+        ambiguous_examples = examples[1]
+        hard_examples = examples[2]
+
+        if order == "E-A-H":
+            return easy_examples + ambiguous_examples + hard_examples
+        if order == "E-H-A":
+            return easy_examples + hard_examples + ambiguous_examples
+        if order == "A-E-H":
+            return ambiguous_examples + easy_examples + hard_examples
+        if order == "A-H-E":
+            return ambiguous_examples + hard_examples + easy_examples
+        if order == "H-E-A":
+            return hard_examples + easy_examples + ambiguous_examples
+        if order == "H-A-E":
+            return hard_examples + ambiguous_examples + easy_examples
+
         return examples
 
 

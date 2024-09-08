@@ -29,6 +29,10 @@ def get_args(parser):
     parser.add_argument(
         "--kshots", type=int, nargs="+", default=[0, 1], help="List of k shots to use"
     )
+    parser.add_argument(
+        "--orders", type=str, nargs="+", default="E-A-H,E-H-A,A-E-H,A-H-E,H-E-A,H-A-E",
+        help="List of orders to use for the datamap selector"
+    )
 
     # parser.add_argument(
     #     "--test_kshots_list", type=int, nargs=3, default=[0, 1,], help="List of k shots to use"

@@ -7,7 +7,7 @@ from transformers import LogitsProcessor
 from utils import plots_dir, results_dir
 from model_loader import ModelLoader
 from args_utils import set_seed, prase_dataset_arg
-from example_selectors import ExampleSelectorFactory, DatamapSimilaritySelector
+from example_selectors import ExampleSelectorFactory, DatamapSimilaritySelector, DatamapExampleSelector
 
 
 class LimitTokensLogitsProcessor(LogitsProcessor):
@@ -40,7 +40,7 @@ class Experiments:
         self.dataset_name = dataset_name
         self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions, sizes)
 
-    def experiment_acc_over_k(self, title: str = "", show_plot: bool = True, timestamp: str = ""):
+    def experiment_acc_over_k(self, ks, title: str = "", show_plot: bool = True, timestamp: str = "", order=None):
         plot_path, results_path = self.generate_result_paths(timestamp)
         pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir = utils.get_datamaps_dir_paths()
         # datamap_path = data_mapping_jsons_dir / "flan-t5-base_ARC-challenge dataset_k_3_num_evals_5_20240826_1843.json"
@@ -49,10 +49,6 @@ class Experiments:
         datamap_plot_path = pp_datamaps_plots_dir / f"dm_{self.model_name}_{self.dataset_name}_train_size_{len(train_set)}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}.png"
         example_selector_type = self.args.example_selector_type
         dataset_name = self.dataset.get_name()
-        if example_selector_type == "datamap_similarity":
-            ks = self.args.kshots_datamap_similarity
-        else:
-            ks = self.args.kshots
         kwargs = {
             'model': self.model,
             'tokenizer': self.tokenizer,
@@ -69,8 +65,9 @@ class Experiments:
                                                                        **kwargs)
         accs = {}
         for k in tqdm(ks,
-                      desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using {example_selector_type} example selector"):
-            accuracy, _, _ = self.evaluate_model(example_selector, k)
+                      desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using "
+                           f"{example_selector_type} example selector"):
+            accuracy, _, _ = self.evaluate_model(example_selector, k, order)
             # k_int = k if isinstance(k, int) else sum(k)  # This is in case k is [x,y,z]
             if isinstance(k, int):
                 accs[k] = accuracy
@@ -110,7 +107,7 @@ class Experiments:
         return plot_path, results_path
 
     def evaluate_model(
-            self, example_selector, k: int, eval_test_set: bool = False
+            self, example_selector, k: int, eval_test_set: bool = False, order=None
     ):
 
         # Define the tokens for 'A', 'B', 'C', 'D'
@@ -135,8 +132,7 @@ class Experiments:
         )
 
         for sample in tqdm(evaluation_set):
-            if isinstance(example_selector, DatamapSimilaritySelector):
-                order = self.args.order
+            if order is not None:
                 examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k,
                                                             order=order)
             else:

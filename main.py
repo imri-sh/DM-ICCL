@@ -10,19 +10,20 @@ from experiments import Experiments
 from model_loader import set_dtype
 
 
-def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_results_bool: bool = True):
+def run_experiments(args, timestamp: str = "", show_plot: bool = False, save_results_bool: bool = True):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
-    # example_selectors_types = args.example_selectors_types
 
-    example_selectors_types_datamap = ["datamap", "datamap_similarity"]
     experiment_results_path = (
             experiment_results_dir
             / f"experiment_results_{timestamp}.csv"
     )
     experiment_results = pd.DataFrame()
-    experiment_results = run_experiments_base(experiments, experiment_results, experiment_results_path, timestamp)
-    run_experiments_datamap_eval(experiments, experiment_results, experiment_results_path, timestamp)
+    experiment_results = run_experiments_base(experiments, experiment_results, experiment_results_path, timestamp,
+                                              show_plot, save_results_bool)
+    run_experiments_datamap_eval(experiments, experiment_results, experiment_results_path, timestamp, save_results_bool)
+
+    return experiment_results_path
 
 
 def run_experiments_datamap_eval(experiments: Experiments, experiment_results: pd.DataFrame,
@@ -34,32 +35,59 @@ def run_experiments_datamap_eval(experiments: Experiments, experiment_results: p
 
     for i, (model_name, dataset_name, selector, order) in enumerate(
             product(args.models, args.datasets, example_selectors_types, args.orders)):
-        print(f"Running experiment {i + 1}/{num_of_experiments}, \n"
-              f"models {model_name}, using selector {selector}, with order {order}")
-
-
-def run_experiments_base(experiments: Experiments, experiment_results: pd.DataFrame, experiment_results_path: Path,
-                         timestamp: str = "", show_plot: bool = False, save_results_bool: bool = True):
-    args = experiments.args
-    # example_selectors_types = args.example_selectors_types
-    example_selectors_types = ["random", "similarity"]
-    num_of_experiments = len(args.models) * len(args.datasets) * len(example_selectors_types)
-    plot_data = []
-
-    print(f"Total number of experiments for baseline: {num_of_experiments}")
-
-    # experiment_results = pd.DataFrame()
-
-    for i, (model_name, dataset_name, selector) in enumerate(
-            product(args.models, args.datasets, example_selectors_types)):
-
-        print(f"Running experiment {i + 1}/{num_of_experiments}, using selector {selector}")
+        print(f"Running experiment {i + 1}/{num_of_experiments} with: \n"
+              f"Model - {model_name}"
+              f"Dataset - {dataset_name}"
+              f"Selector - {selector}"
+              f"Order - {order}")
         experiments.reset_seed()
         experiments.set_model(model_name=model_name)
         experiments.set_dataset(dataset_name=dataset_name, portions=args.portions, sizes=args.sizes)
         args.example_selector_type = selector
 
         accs = experiments.experiment_acc_over_k(
+            ks=experiments.args.kshots_datamap_similarity,
+            title=f"Model: {model_name} \n Dataset: {dataset_name}",
+            show_plot=False,
+            timestamp=timestamp,
+            order=order
+        )
+
+        col_name = f"{dataset_name}_{model_name}"
+        for k, acc in accs.items():
+            row_name = f"{selector}_{k}_{order}"
+            experiment_results.loc[row_name, col_name] = acc
+            if save_results_bool:
+                experiment_results.to_csv(experiment_results_path, index=True)
+
+    print(experiment_results)
+
+    return experiment_results
+
+
+def run_experiments_base(experiments: Experiments, experiment_results: pd.DataFrame, experiment_results_path: Path,
+                         timestamp: str = "", show_plot: bool = False, save_results_bool: bool = True):
+    args = experiments.args
+    example_selectors_types = ["random", "similarity"]
+    num_of_experiments = len(args.models) * len(args.datasets) * len(example_selectors_types)
+    plot_data = []
+
+    print(f"Total number of experiments for baseline: {num_of_experiments}")
+
+    for i, (model_name, dataset_name, selector) in enumerate(
+            product(args.models, args.datasets, example_selectors_types)):
+
+        print(f"Running experiment {i + 1}/{num_of_experiments} with: \n"
+              f"Model - {model_name}"
+              f"Dataset - {dataset_name}"
+              f"Selector - {selector}")
+        experiments.reset_seed()
+        experiments.set_model(model_name=model_name)
+        experiments.set_dataset(dataset_name=dataset_name, portions=args.portions, sizes=args.sizes)
+        args.example_selector_type = selector
+
+        accs = experiments.experiment_acc_over_k(
+            ks=experiments.args.kshots,
             title=f"Model: {model_name} \n Dataset: {dataset_name}",
             show_plot=False,
             timestamp=timestamp
@@ -93,12 +121,12 @@ def main():
     # args.models = "llama3_8b_instruct,llama_3_8B"
     # args.models = "llama3_8b_instruct,phi3_5,"
     # args.datasets = "agnews,arc"
-    args.datasets = "arc"
-    # args.example_selectors_types = ["random", "similarity"]
-    args.kshots = [0, 1, 2]
-    # args.kshots_datamap_similarity = [[1, 2, 3], [3, 2, 1]]
+    args.datasets = "arc,agnews"
+    args.kshots = [0, 3]
+    args.kshots_datamap_similarity = [[1, 1, 1], [2, 1, 0]]
     # args.kshots_datamap_similarity = [[1, 2, 3], [3, 2, 1], [5, 1, 0], [4, 2, 0], [2, 4, 0], [0, 4, 2],
     #                                   [0, 2, 4], [2, 0, 4], [4, 0, 2], [6, 0, 0], [0, 6, 0], [0, 0, 6], ]
+    args.orders = args.orders.split(',')
     args.datamap_kshots = 3
     args.num_evals = 5
     # args.models = args.models.split(',')
@@ -115,7 +143,7 @@ def main():
     args.datasets = args.datasets.split(',')
     # args.sizes = None
     args.portions = None
-    args.sizes = [1119, 299, 1172]
+    args.sizes = [1119, 10, 1172]
     # args.sizes = [1119, 50, 1172]
     # args.sizes = [50, 15, 15]
     print("########################## Stage 1: Datamap Constructions ########################################")
@@ -132,7 +160,7 @@ def main():
 
     print("########################## Stage 2: Experiments ###############################################")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    experiment_results_path = run_experiments_base(args, timestamp)
+    experiment_results_path = run_experiments(args, timestamp)
     # experiment_results = load_results(experiment_results_path)
     print("####################################### DONE ##################################################")
     print(experiment_results_path)
