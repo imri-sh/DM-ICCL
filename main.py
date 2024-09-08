@@ -19,6 +19,11 @@ def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_resu
 
     plot_data = []
 
+    experiment_results_path = (
+            experiment_results_dir
+            / f"experiment_results_{timestamp}.csv"
+    )
+
     for i, selector in enumerate(example_selectors_types):
         print(
             f"-- Starting Evaluation experiments with {selector} example selector {(i + 1)}/{len(example_selectors_types)} --")
@@ -37,28 +42,26 @@ def run_experiments(args, timestamp: str = "", show_plot: bool = True, save_resu
                 timestamp=timestamp
             )
 
+            col_name = f"{dataset_name}_{model_name}"
             for k, acc in accs.items():
-                col_name = f"{dataset_name}_{model_name}"
-                experiment_results.loc[k, col_name] = acc
-                plot_data.append({
-                    'kshots': k,
-                    'accuracy': acc,
-                    'model_dataset': f"{model_name}_{dataset_name}",
-                    'example_selector_type': selector
-                })
+                row_name = f"{selector}_{k}"
+                experiment_results.loc[row_name, col_name] = acc
+                if save_results_bool:
+                    experiment_results.to_csv(experiment_results_path, index=True)
+                if show_plot:
+                    plot_data.append({
+                        'kshots': k,
+                        'accuracy': acc,
+                        'model_dataset': f"{model_name}_{dataset_name}",
+                        'example_selector_type': selector
+                    })
 
         print(experiment_results)
 
-        experiment_results_path = (
-                experiment_results_dir
-                / f"experiment_results_{args.example_selector_type}_{timestamp}.csv"
-        )
-        if save_results_bool:
-            experiment_results.to_csv(experiment_results_path, index=True)
 
-    plot_df = pd.DataFrame(plot_data)
 
     if show_plot:
+        plot_df = pd.DataFrame(plot_data)
         # Create subplots for each model-dataset pair
         unique_datasets_models = plot_df['model_dataset'].unique()
         num_subplots = len(unique_datasets_models)
@@ -101,8 +104,8 @@ def main():
     # args.models = "llama3_8b_instruct,phi3_5,"
     # args.datasets = "agnews,arc"
     args.datasets = "arc"
-    # args.example_selectors_types = ["random", "similarity", "datamap", "datamap_similarity"]
-    args.example_selectors_types = ["random", "similarity"]
+    args.example_selectors_types = ["random", "similarity", "datamap", "datamap_similarity"]
+    # args.example_selectors_types = ["random", "similarity"]
     args.kshots = [0, 1, 2]
     # args.kshots_datamap_similarity = [[1, 2, 3], [3, 2, 1]]
     # args.kshots_datamap_similarity = [[1, 2, 3], [3, 2, 1], [5, 1, 0], [4, 2, 0], [2, 4, 0], [0, 4, 2],
@@ -116,7 +119,7 @@ def main():
         # "phi3_5",
         # "phi2",
         'flan_t5_base',
-        'flan_t5_large'
+        'flan_t5_large',
         # "gemma2_9b_instruct",
         # "gemma2_9b",
     ]

@@ -7,7 +7,7 @@ from transformers import LogitsProcessor
 from utils import plots_dir, results_dir
 from model_loader import ModelLoader
 from args_utils import set_seed, prase_dataset_arg
-from example_selectors import ExampleSelectorFactory
+from example_selectors import ExampleSelectorFactory, DatamapSimilaritySelector
 
 
 class LimitTokensLogitsProcessor(LogitsProcessor):
@@ -53,7 +53,6 @@ class Experiments:
             ks = self.args.kshots_datamap_similarity
         else:
             ks = self.args.kshots
-        accs = {}
         kwargs = {
             'model': self.model,
             'tokenizer': self.tokenizer,
@@ -68,16 +67,20 @@ class Experiments:
         }
         example_selector = ExampleSelectorFactory.get_example_selector(example_selector_type=example_selector_type,
                                                                        **kwargs)
-
+        accs = {}
         for k in tqdm(ks,
                       desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using {example_selector_type} example selector"):
             accuracy, _, _ = self.evaluate_model(example_selector, k)
-            k = k if isinstance(k, int) else sum(k)  # This is in case k is [x,y,z]
-            accs[k] = accuracy
+            # k_int = k if isinstance(k, int) else sum(k)  # This is in case k is [x,y,z]
+            if isinstance(k, int):
+                accs[k] = accuracy
+            else:
+                accs[tuple(k)] = accuracy
             print(f"kshot={k}, accuracy={accuracy * 100:.2f}% ")
 
-        k_range = np.array(list(accs.keys())) * 3 if example_selector_type == 'datamap' else np.array(list(accs.keys()))
         if show_plot:
+            k_range = np.array(list(accs.keys())) * 3 if example_selector_type == 'datamap' else np.array(
+                list(accs.keys()))
             utils.plot_accuracies_over_kshots(
                 k_range=k_range,
                 accuracies=list(accs.values()),
@@ -132,7 +135,12 @@ class Experiments:
         )
 
         for sample in tqdm(evaluation_set):
-            examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k)
+            if isinstance(example_selector, DatamapSimilaritySelector):
+                order = self.args.order
+                examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k,
+                                                            order=order)
+            else:
+                examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k)
             few_shot_prompt = self.dataset.create_few_shot_prompt(sample, examples)
 
             inputs = self.tokenizer(few_shot_prompt, return_tensors="pt").to(self.device)

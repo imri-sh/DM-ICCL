@@ -153,14 +153,28 @@ class DatamapSimilaritySelector(BaseExampleSelector):
     def add_example(self, example):
         raise NotImplementedError
 
-    def select_examples(self, input_variables, key, kshot) -> List:
+    def select_examples(self, input_variables, key, kshot, order: str = "E-A-H") -> List:
+        """
+        kshot: list - [easy,ambiguous,hard]
+        """
         assert isinstance(kshot, list) or isinstance(kshot, tuple)
         assert len(kshot) == 3  # easy, ambiguous, hard
         easy_examples = self.similarity_easy.select_examples(input_variables, key, kshot[0])
         ambiguous_examples = self.similarity_ambiguous.select_examples(input_variables, key, kshot[1])
         hard_examples = self.similarity_hard.select_examples(input_variables, key, kshot[2])
 
-        return easy_examples + ambiguous_examples + hard_examples  # TODO - Note, currently orders easy->ambig.->hard
+        if order == "E-A-H":
+            return easy_examples + ambiguous_examples + hard_examples
+        if order == "E-H-A":
+            return easy_examples + hard_examples + ambiguous_examples
+        if order == "A-E-H":
+            return ambiguous_examples + easy_examples + hard_examples
+        if order == "A-H-E":
+            return ambiguous_examples + hard_examples + easy_examples
+        if order == "H-E-A":
+            return hard_examples + easy_examples + ambiguous_examples
+        if order == "H-A-E":
+            return hard_examples + ambiguous_examples + easy_examples
 
 
 class ExampleSelectorFactory:
