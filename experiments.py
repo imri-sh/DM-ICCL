@@ -67,7 +67,7 @@ class Experiments:
         for k in tqdm(ks,
                       desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using "
                            f"{example_selector_type} example selector"):
-            accuracy, _, _ = self.evaluate_model(example_selector, k, eval_test_set=False, order=order)
+            accuracy, _, _ = self.evaluate_model(example_selector, k, eval_test_set=True, order=order)
             # if isinstance(k, int):
             #     accs[k] = accuracy
             # else:
