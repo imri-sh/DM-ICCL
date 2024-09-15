@@ -118,9 +118,6 @@ def run_experiments_base(experiments: Experiments, experiment_results: pd.DataFr
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
-    # args.models = "llama3_8b_instruct,llama_3_8B"
-    # args.models = "llama3_8b_instruct,phi3_5,"
-    # args.datasets = "agnews,arc"
     args.datasets = "arc,agnews"
     args.kshots = [0, 3]
     args.kshots_datamap_similarity = [[1, 1, 1], [2, 1, 0]]
@@ -143,7 +140,7 @@ def main():
     args.datasets = args.datasets.split(',')
     # args.sizes = None
     args.portions = None
-    args.sizes = [1119, 10, 1172]
+    args.sizes = [1119, 299, 1172]
     # args.sizes = [1119, 50, 1172]
     # args.sizes = [50, 15, 15]
     print("########################## Stage 1: Datamap Constructions ########################################")
