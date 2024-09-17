@@ -11,7 +11,7 @@ This repository can be used to build ICL Data-Maps, like this one for ARC-Challe
 
 ![ARC-Challenge DataMap](pp_datamaps%2Fplots%2Fdm_llama-3-8B-instruct_arc_train_size_1119_k_3_num_evals_5.png)
 
-and then use can you it for In-Context curriculum-based Learning on the test set.
+and then you can use it for In-Context curriculum-based Learning on the test set.
 
 ## 📁 Key Files
 
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 The following command will execute:
 
 1. Datamap Construction for every (model, dataset) specified
-   - Relevant arguments: `train_size`, `datamap_kshots`, `num_evals`, `seed`
+   - Relevant arguments: `sizes[0]`, `datamap_kshots`, `num_evals`, `seed`
    - Saving results in:
      - `./pp_datamaps/plots`
      - `./pp_datamaps/results`
