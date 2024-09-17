@@ -1,5 +1,3 @@
-Here's a more visually appealing version of the markdown:
-
 # DM-ICCL: Improving In-Context Learning through DataMap-Based Curriculum
 
 This repository contains the implementation of the DM-ICCL framework, which includes three main phases:
