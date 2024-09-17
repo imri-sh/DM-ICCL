@@ -60,3 +60,6 @@ For an explanation of the arguments, run:
 ```bash
 python run_experiments.py --help
 ```
+
+## Our Results
+[final_experiments_results.csv](https://github.com/imri-sh/ANLP-project/blob/main/final_experiments_results.csv)
