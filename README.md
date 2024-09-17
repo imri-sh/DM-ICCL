@@ -11,6 +11,8 @@ This repository can be used to build ICL Data-Maps, like this one for ARC-Challe
 
 ![ARC-Challenge DataMap](pp_datamaps%2Fplots%2Fdm_llama-3-8B-instruct_arc_train_size_1119_k_3_num_evals_5.png)
 
+and then use can you it for In-Context curriculum-based Learning on the test set.
+
 ## 📁 Key Files
 
 - `experiments.py`: Framework for running experiments
