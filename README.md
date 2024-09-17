@@ -61,5 +61,5 @@ For an explanation of the arguments, run:
 python run_experiments.py --help
 ```
 
-## Our Results
+## 📈 Our Results
 [final_experiments_results.csv](https://github.com/imri-sh/ANLP-project/blob/main/final_experiments_results.csv)
