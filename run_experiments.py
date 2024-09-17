@@ -3,14 +3,15 @@ import pandas as pd
 
 from datetime import datetime
 from itertools import product
-from preprocess import preprocess_datamaps
+
+import args_utils
+from preprocess_dm import preprocess_datamaps
 from utils import *
 from args_utils import get_args
 from experiments import Experiments
 from model_loader import set_dtype
 
-
-def run_experiments(args, timestamp: str = "", show_plot: bool = False, save_results_bool: bool = True):
+def run_experiments(args, timestamp: str = "", show_plot: bool = False, save_results_bool: bool = True,run_baselines=True,run_datamaps=True, eval_test_set=True):
     set_dtype(fp_type="fp16")
     experiments = Experiments(args)
 
@@ -19,15 +20,31 @@ def run_experiments(args, timestamp: str = "", show_plot: bool = False, save_res
             / f"experiment_results_{timestamp}.csv"
     )
     experiment_results = pd.DataFrame()
-    experiment_results = run_experiments_base(experiments, experiment_results, experiment_results_path, timestamp,
-                                              show_plot, save_results_bool)
-    run_experiments_datamap_eval(experiments, experiment_results, experiment_results_path, timestamp, save_results_bool)
+    if eval_test_set:
+        print("Evaluating on test sets")
+    else:
+        print("Evaluating on validation set")
 
-    return experiment_results_path
+    if run_baselines:
+        experiment_results = run_experiments_base(experiments,
+                                                  experiment_results,
+                                                  experiment_results_path,
+                                                  eval_test_set,
+                                                  timestamp,
+                                                  show_plot,
+                                                  save_results_bool)
+    if run_datamaps:
+        run_experiments_datamap_eval(experiments,
+                                     experiment_results,
+                                     experiment_results_path,
+                                     eval_test_set,
+                                     timestamp,
+                                     save_results_bool)
+    print(experiment_results_path)
 
 
 def run_experiments_datamap_eval(experiments: Experiments, experiment_results: pd.DataFrame,
-                                 experiment_results_path: Path, timestamp: str = "", save_results_bool: bool = True):
+                                 experiment_results_path: Path, eval_test_set:bool =True,timestamp: str = "", save_results_bool: bool = True):
     args = experiments.args
     example_selectors_types = ["datamap", "datamap_similarity"]
     num_of_experiments = len(args.models) * len(args.datasets) * len(example_selectors_types) * len(args.orders)
@@ -36,13 +53,13 @@ def run_experiments_datamap_eval(experiments: Experiments, experiment_results: p
     for i, (model_name, dataset_name, selector, order) in enumerate(
             product(args.models, args.datasets, example_selectors_types, args.orders)):
         print(f"Running experiment {i + 1}/{num_of_experiments} with: \n"
-              f"Model - {model_name}"
-              f"Dataset - {dataset_name}"
-              f"Selector - {selector}"
-              f"Order - {order}")
+              f"Model - {model_name}\n"
+              f"Dataset - {dataset_name}\n"
+              f"Selector - {selector}\n"
+              f"Order - {order}\n")
         experiments.reset_seed()
         experiments.set_model(model_name=model_name)
-        experiments.set_dataset(dataset_name=dataset_name, portions=args.portions, sizes=args.sizes)
+        experiments.set_dataset(dataset_name=dataset_name, sizes=args.sizes)
         args.example_selector_type = selector
 
         accs = experiments.experiment_acc_over_k(
@@ -50,7 +67,8 @@ def run_experiments_datamap_eval(experiments: Experiments, experiment_results: p
             title=f"Model: {model_name} \n Dataset: {dataset_name}",
             show_plot=False,
             timestamp=timestamp,
-            order=order
+            order=order,
+            eval_test_set=eval_test_set
         )
 
         col_name = f"{dataset_name}_{model_name}"
@@ -65,7 +83,7 @@ def run_experiments_datamap_eval(experiments: Experiments, experiment_results: p
     return experiment_results
 
 
-def run_experiments_base(experiments: Experiments, experiment_results: pd.DataFrame, experiment_results_path: Path,
+def run_experiments_base(experiments: Experiments, experiment_results: pd.DataFrame, experiment_results_path: Path,eval_test_set:bool=True,
                          timestamp: str = "", show_plot: bool = False, save_results_bool: bool = True):
     args = experiments.args
     example_selectors_types = ["random", "similarity"]
@@ -78,19 +96,20 @@ def run_experiments_base(experiments: Experiments, experiment_results: pd.DataFr
             product(args.models, args.datasets, example_selectors_types)):
 
         print(f"Running experiment {i + 1}/{num_of_experiments} with: \n"
-              f"Model - {model_name}"
-              f"Dataset - {dataset_name}"
-              f"Selector - {selector}")
+              f"Model - {model_name}\n"
+              f"Dataset - {dataset_name}\n"
+              f"Selector - {selector}\n")
         experiments.reset_seed()
         experiments.set_model(model_name=model_name)
-        experiments.set_dataset(dataset_name=dataset_name, portions=args.portions, sizes=args.sizes)
+        experiments.set_dataset(dataset_name=dataset_name, sizes=args.sizes)
         args.example_selector_type = selector
 
         accs = experiments.experiment_acc_over_k(
             ks=experiments.args.kshots,
             title=f"Model: {model_name} \n Dataset: {dataset_name}",
             show_plot=False,
-            timestamp=timestamp
+            timestamp=timestamp,
+            eval_test_set = eval_test_set
         )
 
         col_name = f"{dataset_name}_{model_name}"
@@ -114,54 +133,31 @@ def run_experiments_base(experiments: Experiments, experiment_results: pd.DataFr
 
     return experiment_results
 
-
 def main():
     parser = argparse.ArgumentParser(description="Run the experiment")
     args = get_args(parser).parse_args()
-    args.datasets = "arc,agnews"
-    args.kshots = [0, 3]
-    args.kshots_datamap_similarity = [[1, 1, 1], [2, 1, 0]]
-    # args.kshots_datamap_similarity = [[1, 2, 3], [3, 2, 1], [5, 1, 0], [4, 2, 0], [2, 4, 0], [0, 4, 2],
-    #                                   [0, 2, 4], [2, 0, 4], [4, 0, 2], [6, 0, 0], [0, 6, 0], [0, 0, 6], ]
-    args.orders = args.orders.split(',')
-    args.datamap_kshots = 3
-    args.num_evals = 5
-    # args.models = args.models.split(',')
-    args.models = [
-        # "llama3_8b_instruct",
-        # "llama_3_8b",
-        # "phi3_5",
-        # "phi2",
-        'flan_t5_base',
-        'flan_t5_large',
-        # "gemma2_9b_instruct",
-        # "gemma2_9b",
-    ]
-    args.datasets = args.datasets.split(',')
-    # args.sizes = None
-    args.portions = None
-    args.sizes = [1119, 299, 1172]
-    # args.sizes = [1119, 50, 1172]
-    # args.sizes = [50, 15, 15]
-    print("########################## Stage 1: Datamap Constructions ########################################")
-    timing_info = preprocess_datamaps(models=args.models,
-                                      datasets=args.datasets,
-                                      portions=args.portions,
-                                      sizes=args.sizes,
-                                      datamap_kshots=args.datamap_kshots,
-                                      num_evals=args.num_evals,
-                                      seed=args.seed,
-                                      save_and_show_plots=True)
-    print(timing_info)
+    # print(args)
+    args_utils.parse_strings_to_lists(args)
+
+    print("################ Stage 1: Datamap Constructions & Difficulty Assignment ##################")
+    preprocess_datamaps(models=args.models,
+                        datasets=args.datasets,
+                        sizes=args.sizes,
+                        datamap_kshots=args.datamap_kshots,
+                        num_evals=args.num_evals,
+                        seed=args.seed,
+                        save_and_show_plots=True)
     print("####################################### DONE ##################################################")
 
     print("########################## Stage 2: Experiments ###############################################")
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    experiment_results_path = run_experiments(args, timestamp)
-    # experiment_results = load_results(experiment_results_path)
+    run_experiments(args,
+                    timestamp= datetime.now().strftime("%Y%m%d_%H%M"),
+                    show_plot= False,
+                    save_results_bool= True,
+                    run_baselines=True,
+                    run_datamaps=True,
+                    eval_test_set=args.eval_test_set)
     print("####################################### DONE ##################################################")
-    print(experiment_results_path)
-
 
 if __name__ == '__main__':
     main()

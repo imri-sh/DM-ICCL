@@ -61,20 +61,6 @@ class ArcDataset(BaseDataset):
     def get_data(self):
         return self.train, self.validation, self.test
 
-    # def create_few_shot_prompt(self, sample, context_examples):
-    #     prompt = "Choose the correct answers for the following questions, using the letter of the correct answer.\n\n"
-    #     for example in context_examples:
-    #         prompt += f"Question: {example['question']}\n"
-    #         for i, choice in enumerate(example['choices']['text']):
-    #             prompt += f"{chr(65 + i)}. {choice}\n"
-    #         prompt += f"Answer: {example['answerKey']}\n\n"
-    #
-    #     prompt += f"Question: {sample['question']}\n"
-    #     for i, choice in enumerate(sample['choices']['text']):
-    #         prompt += f"{chr(65 + i)}. {choice}\n"
-    #     prompt += "Answer: "
-    #     return prompt
-
     def create_few_shot_prompt(self, sample, context_examples):
         prompt = basic_prompt_arc
         for example in context_examples:

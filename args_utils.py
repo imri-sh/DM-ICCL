@@ -1,80 +1,55 @@
+import ast
 import random
 import numpy as np
 import torch
 from dataset_admin import AgNewsDataset, ArcDataset
 
+
+
 def get_args(parser):
-    # Adding arguments to the parser
     parser.add_argument(
         "--datasets",
         type=str,
-        default="arc",
-        # choices=["arc", "emotions"],
+        default="arc,agnews",
         help="Dataset to use",
     )
-    parser.add_argument(
-        "--portions",
-        type=float,
-        nargs=3,
-        default=[1.0, 1.0, 1.0],
-        help="List of 3 floats between 0 and 1",
-    )
-    parser.add_argument(
-        "--test_size", type=int, default=500, help="unified test set size"
-    )
-    parser.add_argument(
-        "--train_size", type=int, default=500, help="unified train set size"
-    )
-    parser.add_argument(
-        "--kshots", type=int, nargs="+", default=[0, 1], help="List of k shots to use"
-    )
-    parser.add_argument(
-        "--orders", type=str, nargs="+", default="E-A-H,E-H-A,A-E-H,A-H-E,H-E-A,H-A-E",
-        help="List of orders to use for the datamap selector"
-    )
+    parser.add_argument('--sizes', type=int, nargs='+', required=True, help='sizes to use from train,val, test sets in this order')
 
-    # parser.add_argument(
-    #     "--test_kshots_list", type=int, nargs=3, default=[0, 1,], help="List of k shots to use"
-    # )
-
-    parser.add_argument(
-        "--datamap_kshots", type=int, nargs=1, default=3, help="kshot for data-mapping"
-    )
-
-    parser.add_argument("--datamap", type=bool, default=False)
     parser.add_argument(
         "--models",
         type=str,
-        default="flan_t5_base,phi2",
-        # choices=[
-        #     "phi2",
-        #     "phi3",
-        #     "phi3_5",
-        #     "flan_t5_base",
-        #     "flan_t5_large",
-        #     "flan_t5_xl",
-        #     "llama3_8b_instruct",
-        #     "gemma2_9b_instruct",
-        # ],
+        default="llama3_8b_instruct,llama_3_8b,phi3_5,gemma2_9b_instruct,gemma2_9b",
         help="Name of model to use",
     )
-    parser.add_argument("--num_evals", type=int, default=5, help="Number of evaluations for each example in datamap")
+
+
+    parser.add_argument('--kshots', type=int, nargs='+', required=True, help='List of k-shot values for baselines experiments')
+
     parser.add_argument(
-        "--seed", type=str, default=42, help="Seed value for random number generator"
+        "--orders", type=str, default="E-A-H,E-H-A,A-E-H,A-H-E,H-E-A,H-A-E",
+        help="List of orders to use for the datamap selector"
+    )
+
+    parser.add_argument(
+        "--datamap_kshots", type=int, nargs=1, default=3, help="kshot for data-mapping construction"
+    )
+
+    parser.add_argument("--num_evals",
+                        type=int,
+                        default=5,
+                        help="Number of evaluations for each example in datamap")
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Seed value for random number generator"
     )
     parser.add_argument(
-        "--example_selector_type",
-        type=str,
-        default="random",
-        choices=["random", "similarity","datamap"],
-        help="The type of example selector to use",
+        "--eval_test_set",  action='store_true', help="True for evaluating on test set, if not specified using validation"
     )
-    parser.add_argument(
-        "--encoder_path",
-        type=str,
-        default="all-MiniLM-L6-v2",
-        help="The path of the encoder to use in similarity based example selector",
-    )
+
+    default_similarity = [[1, 2, 3], [3, 2, 1], [5, 1, 0], [4, 2, 0], [2, 4, 0], [0, 4, 2], [0, 2, 4], [2, 0, 4],
+                          [4, 0, 2], [6, 0, 0], [0, 6, 0], [0, 0, 6]]
+
+    parser.add_argument('--kshots_datamap_similarity', type=str, default=str(default_similarity), help='Nested list for k-shot datamap similarity')
+
     return parser
 
 
@@ -87,6 +62,14 @@ def prase_dataset_arg(dataset_arg):
         raise ValueError(f"Dataset {dataset_arg} is not supported.")
     return dataset
 
+def parse_strings_to_lists(args):
+    print(args.orders)
+    args.orders = args.orders.split(',')
+    args.models = args.models.split(',')
+    args.datasets = args.datasets.split(',')
+    if args.kshots_datamap_similarity:
+        args.kshots_datamap_similarity = ast.literal_eval(args.kshots_datamap_similarity)
+    return args
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)

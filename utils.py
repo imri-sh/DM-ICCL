@@ -56,6 +56,8 @@ def plot_code_exiled(plot_data, timestamp):
     plot_save_path = plots_dir / f'experiment_results_{timestamp}_subplots.png'
     plt.savefig(plot_save_path, bbox_inches='tight')
     plt.show()
+
+
 def plot_confusion_matrix(all_labels, all_preds, normalize=False, title='Confusion matrix',
                           cmap='Blues', filepath:Path=None):
     labels = ["A", "B", "C", "D"]
@@ -144,7 +146,7 @@ def plot_data_map_by_difficulty(easy, ambiguous, hard, title: str, save_path: Pa
     plt.show()
 
 
-def trim_data(dataset, portions, sizes):
+def trim_data(dataset, sizes):
     """
     Trims the dataset by selecting a portion of each subset (train, validation, test).
 
@@ -155,21 +157,12 @@ def trim_data(dataset, portions, sizes):
 
     :return: The trimmed dataset with the specified portions of the train, validation, and test subsets.
     """
-    if portions == [1.0, 1.0, 1.0]:
-        print("Using all data")
-        return dataset
     if sizes is not None:
-        print(f"Using fixed sizes: {sizes}")
+        # print(f"Using fixed sizes: {sizes}")
         dataset.train = dataset.train.select(range(sizes[0]))
         dataset.validation = dataset.validation.select(range(sizes[1]))
         dataset.test = dataset.test.select(range(sizes[2]))
         return dataset
-
-    print(f"Using portions: {portions}")
-    dataset.train = dataset.train.select(range(int(len(dataset.train) * portions[0])))
-    dataset.validation = dataset.validation.select(range(int(len(dataset.validation) * portions[1])))
-    dataset.test = dataset.test.select(range(int(len(dataset.test) * portions[2])))
-    return dataset
 
 
 def save_results(results, save_path: Path = None):

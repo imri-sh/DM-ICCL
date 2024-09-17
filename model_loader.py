@@ -60,6 +60,7 @@ class ModelLoader:
             model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
             tokenizer = AutoTokenizer.from_pretrained(model_name, clean_up_tokenization_spaces=True)
             return model, tokenizer, "flan_t5_large"
+
         elif model_name == 'flan_t5_xl':
             """ Microsoft's FLAN T5 xl. 3B params."""
             model_name = "google/flan-t5-xl"
@@ -75,28 +76,6 @@ class ModelLoader:
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             return model, tokenizer, "llama3_8b_instruct"
-
-        elif model_name == 'llama2_7b':
-            model_name = "meta-llama/Llama-2-7b-hf"
-            model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
-                device
-            )
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama2_7b"
-        elif model_name == 'llama2_13b':
-            model_name = "meta-llama/Llama-2-13b-hf"
-            model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
-                device
-            )
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama2_13b"
-        elif model_name == 'llama2_7b_chat':
-            model_name = "meta-llama/Llama-2-7b-chat-hf"
-            model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(
-                device
-            )
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            return model, tokenizer, "llama2_7b_chat"
 
         elif model_name == 'gemma2_9b_instruct':
             """Google's Gemma 2 9B instruct. 9B params."""

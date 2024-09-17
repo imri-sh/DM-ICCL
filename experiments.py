@@ -36,14 +36,13 @@ class Experiments:
         self.model, self.tokenizer, self.model_name = ModelLoader.get_model_and_tokenizer(model_name,
                                                                                           device=self.device)
 
-    def set_dataset(self, dataset_name: str, portions=None, sizes=None):
+    def set_dataset(self, dataset_name: str,sizes=None):
         self.dataset_name = dataset_name
-        self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), portions, sizes)
+        self.dataset = utils.trim_data(prase_dataset_arg(dataset_name), sizes)
 
-    def experiment_acc_over_k(self, ks, title: str = "", show_plot: bool = True, timestamp: str = "", order=None):
+    def experiment_acc_over_k(self, ks, title: str = "", show_plot: bool = True, timestamp: str = "", order=None,eval_test_set=True):
         plot_path, results_path = self.generate_result_paths(timestamp)
         pp_datamaps_dir, pp_datamaps_results_dir, pp_datamaps_plots_dir = utils.get_datamaps_dir_paths()
-        # datamap_path = data_mapping_jsons_dir / "flan-t5-base_ARC-challenge dataset_k_3_num_evals_5_20240826_1843.json"
         train_set, _, _ = self.dataset.get_data()
         datamap_results_path = pp_datamaps_results_dir / f"dm_{self.model_name}_{self.dataset_name}_train_size_{len(train_set)}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}.json"
         datamap_plot_path = pp_datamaps_plots_dir / f"dm_{self.model_name}_{self.dataset_name}_train_size_{len(train_set)}_k_{self.args.datamap_kshots}_num_evals_{self.args.num_evals}.png"
@@ -65,13 +64,8 @@ class Experiments:
                                                                        **kwargs)
         accs = {}
         for k in tqdm(ks,
-                      desc=f"Evaluating model {self.model_name} on {dataset_name} with kshots {ks} using "
-                           f"{example_selector_type} example selector"):
-            accuracy, _, _ = self.evaluate_model(example_selector, k, eval_test_set=True, order=order)
-            # if isinstance(k, int):
-            #     accs[k] = accuracy
-            # else:
-            #     accs[str(k)] = accuracy
+                      desc=f"Evaluating model {self.model_name} on {dataset_name} with {example_selector_type} example selector"):
+            accuracy, _, _ = self.evaluate_model(example_selector, k, eval_test_set=eval_test_set, order=order)
             accs[str(k)] = accuracy
             print(f"kshot={k}, accuracy={accuracy * 100:.2f}% ")
 
@@ -89,7 +83,6 @@ class Experiments:
 
     def generate_result_paths(self, timestamp: str = ""):
         dataset_name = self.dataset.get_name()
-        # timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         experiment_plots_dir = plots_dir / "experiments"
         experiment_plots_dir.mkdir(exist_ok=True)
         experiment_results_dir = results_dir / "experiments"
@@ -138,7 +131,7 @@ class Experiments:
             else:
                 examples = example_selector.select_examples(input_variables=sample, key="question", kshot=k)
             few_shot_prompt = self.dataset.create_few_shot_prompt(sample, examples)
-
+            # print(few_shot_prompt)
             inputs = self.tokenizer(few_shot_prompt, return_tensors="pt").to(self.device)
             # Generate with the custom logits processor
             outputs = self.model.generate(
@@ -174,13 +167,7 @@ class Experiments:
                     f"  seed={self.args.seed}\n"
                     f"  kshots={self.args.kshots}"
                     f")")
-        dataset_sizes = None
-        if self.args.portions:
-            dataset_sizes = {
-                "train": f"{len(self.dataset.train)} ({int(self.args.portions[0] * 100)}%)",
-                "validation": f"{len(self.dataset.validation)} ({int(self.args.portions[1] * 100)}%)",
-                "test": f"{len(self.dataset.test)} ({int(self.args.portions[2] * 100)}%)",
-            }
+
         elif self.args.sizes:
             dataset_sizes = {
                 "train": f"{len(self.dataset.train)} ({self.args.sizes[0]})",
@@ -188,7 +175,7 @@ class Experiments:
                 "test": f"{len(self.dataset.test)} ({self.args.sizes[2]})",
             }
         else:
-            raise ValueError("Either portions or sizes should be provided")
+            raise ValueError("Datasets sizes should be provided")
         return (
             f"Experiments(\n"
             f"  model_name='{self.model_name}',\n"
