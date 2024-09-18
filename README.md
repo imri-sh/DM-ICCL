@@ -5,7 +5,7 @@ This repository contains the implementation of the DM-ICCL framework, which incl
 - 🏷️ Difficulty Assignment to [easy, ambiguous, hard] subsets 
 - 🚀 Application using k-shot curriculum-based context on test set
 
-📑 Our full report can be found [here](https://example.com/path/to/yourfile.pdf).
+📑 Our full report can be found [here](https://github.com/imri-sh/DM-ICCL/blob/main/report.pdf).
 
 This repository can be used to build ICL Data-Maps, like this one for ARC-Challenge using Llama3-8B-instruct:
 
