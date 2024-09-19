@@ -9,8 +9,7 @@ This repository contains the implementation of the DM-ICCL framework, which incl
 
 This repository can be used to build ICL Data-Maps, like this one for ARC-Challenge using Llama3-8B-instruct:
 
-![ARC-Challenge DataMap](pp_datamaps/plots/Llama 3 8B Instruct ARC-C Data Map.png)
-
+![ARC-Challenge DataMap](pp_datamaps/plots/Llama%203%208B%20Instruct%20ARC-C%20Data%20Map.png)
 and then you can use it for In-Context curriculum-based Learning on the test set.
 
 ## 📁 Key Files
