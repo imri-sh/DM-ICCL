@@ -125,11 +125,11 @@ def plot_data_map_by_difficulty(easy, ambiguous, hard, title: str, save_path: Pa
 
     # For easy and ambiguous boundary: confidence - 2 * std = 0.5 -> confidence = 0.5 + 2 * std
     easy_boundary_y = 0.5 + 2 * std_range
-    plt.plot(std_range, easy_boundary_y, 'b--', label='Easy-Ambiguous Boundary')
+    plt.plot(std_range, easy_boundary_y, 'k--', label='Easy-Ambiguous Boundary')
 
     # For ambiguous and hard boundary: confidence + 2 * std = 0.5 -> confidence = 0.5 - 2 * std
     hard_boundary_y = 0.5 - 2 * std_range
-    plt.plot(std_range, hard_boundary_y, 'r--', label='Ambiguous-Hard Boundary')
+    plt.plot(std_range, hard_boundary_y, 'k--', label='Ambiguous-Hard Boundary')
 
     # Set plot title and labels
     plt.title(title)
