@@ -7,6 +7,7 @@ from model_loader import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
     """
     Calculate the mean confidence and standard deviation of softmax probabilities for each sample in the dataset.
@@ -29,7 +30,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
 
     # Store results for each sample
     results = []
-    
+
     # Run the process num_difficulty_train_samples times
     for sample_idx in tqdm(range(train_len)):
 
@@ -73,7 +74,7 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
             # Convert logits to a tensor
             logits_tensor = torch.tensor([answer_logits[chr(65 + i)] for i in range(num_choices)])
 
-            # Calculate softmax probabilities #TODO - ADD ACCURACY!
+            # Calculate softmax probabilities
             softmax_probs = F.softmax(logits_tensor, dim=0)
             if torch.all(torch.isnan(softmax_probs)).item():
                 print(
@@ -113,7 +114,8 @@ def get_confidence_std(dataset, model, tokenizer, num_evals, k_shots):
     return results
 
 
-def data_mapping(model, tokenizer, dataset, num_evals: int, k_shots: int, title:str, plot_path:Path=None, show_plot=True):
+def data_mapping(model, tokenizer, dataset, num_evals: int, k_shots: int, title: str, plot_path: Path = None,
+                 show_plot=True):
     """
     Evaluates how hard individual samples in the dataset are for the given model. Creates a datamap and returns the
     evaluation results.
@@ -140,10 +142,11 @@ def data_mapping(model, tokenizer, dataset, num_evals: int, k_shots: int, title:
     if show_plot:
         print(
             f"Using {len(dataset.get_data()[0])} examples with k={k_shots} and num_evals={num_evals}.\n "
-            f"Mean confidence in correct answers is {mean_confidence*100:.2f}%"
+            f"Mean confidence in correct answers is {mean_confidence * 100:.2f}%"
         )
         utils.plot_data_map_by_difficulty(easy, ambiguous, hard, title=title, save_path=plot_path)
     return results, mean_confidence
+
 
 def assign_difficulty(examples: list[dict]) -> tuple[list, list, list]:
     """
